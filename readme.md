@@ -9,4 +9,4 @@ Create a server that will return files using a part of the path after `/file/`
 Examples:
 - `/file/index.html` returns `public/index.html`
 - `/file/styles/main.css` returns `public/styles/main.css`
-- `/file/` и `/file` returns `public/index.html`
+- `/file/` and `/file` return `public/index.html`
