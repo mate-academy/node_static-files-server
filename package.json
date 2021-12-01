@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Static files server",
   "main": "src/app.js",
+  "type": "module",
   "scripts": {
     "init": "mate-scripts init",
     "start": "mate-scripts start",
@@ -24,5 +25,8 @@
   },
   "mateAcademy": {
     "projectType": "javascript"
+  },
+  "dependencies": {
+    "nodemon": "^2.0.15"
   }
 }
