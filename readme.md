@@ -1,4 +1,7 @@
 # Static files server
+
+**Read [the guideline](https://github.com/mate-academy/js_task-guideline/blob/master/README.md) before start**
+
 Create a server that will return files using a part of the path after `/file/`
 
 - Return only files from a folder `public`
