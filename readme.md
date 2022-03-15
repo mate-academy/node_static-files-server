@@ -13,3 +13,16 @@ Examples:
 - `/file/index.html` returns `public/index.html`
 - `/file/styles/main.css` returns `public/styles/main.css`
 - `/file/` and `/file` return `public/index.html`
+
+# Сервер статичних файлів
+Створіть сервер, який повертатиме файли, використовуючи частину шляху після `/file/`
+
+- Повертати лише файли з папки `public`
+- Не повинно бути доступу до будь-яких інших файлів
+- Повернути статус 404 для неіснуючих файлів
+- Якщо `pathname` не починається з `/file/`, поверніть повідомлення з підказкою, як завантажити файли
+
+Приклади:
+- `/file/index.html` повертає `public/index.html`
+- `/file/styles/main.css` повертає `public/styles/main.css`
+- `/file/` і `/file` повертають `public/index.html`
