@@ -15,7 +15,9 @@ const server = http.createServer((req, res) => {
   if (fs.existsSync(normalizedPath)) {
     fs.readFile(normalizedPath, (err, data) => {
       if (err) {
-        res.end(`${normalizedPath} is not a file, write path correctly!`);
+        res.end(
+          `${normalizedURL.pathname} is not a file, write path correctly!`
+        );
       }
 
       res.end(data);
