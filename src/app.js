@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 'use strict';
 
 const fs = require('fs/promises');
@@ -8,7 +7,6 @@ const url = require('url');
 const server = http.createServer((req, res) => {
   const { pathname } = new url.URL(req.url, `http://${req.headers.host}`);
 
-  console.log(pathname);
 
   const splittedPath = pathname.split('/');
 
