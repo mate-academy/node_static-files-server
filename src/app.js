@@ -7,7 +7,7 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  let fileName = req.url.slice(1).replace('file', '');
+  let fileName = req.url.slice(1).replace('file', '') || 'index.html';
 
   if (fileName.length < 2) {
     fileName = 'index.html';
