@@ -13,11 +13,7 @@ const server = http.createServer((req, res) => {
   const hasCurrPath = normalizeURL.pathname.startsWith(currPath);
 
   const fileName
-    = (hasCurrPath
-      ? normalizeURL.pathname.slice(6)
-      : normalizeURL.pathname.slice(1)
-    )
-      || 'index.html';
+    = normalizeURL.pathname.slice(6) || 'index.html';
 
   fs.readFile(`./public/${fileName}`, (err, data) => {
     if (err) {
