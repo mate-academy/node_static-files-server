@@ -1,0 +1,7 @@
+body {
+  background-image: linear-gradient(
+    to bottom,
+    blue,
+    red
+  );
+}
