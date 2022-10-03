@@ -12,7 +12,7 @@ const server = http.createServer((req, res) => {
   const fileFolder = path[0] === 'file' ? 'public/' : '';
   const fileName = path.slice(1).join('/') || 'index.html';
 
-  if (normalizedURL.pathname.startsWith('/file')) {
+  if (fileFolder) {
     fs.readFile(`${fileFolder}${fileName}`, (error, data) => {
       if (error) {
         res.statusCode = 404;
