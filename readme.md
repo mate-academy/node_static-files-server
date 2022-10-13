@@ -13,3 +13,7 @@ Examples:
 - `/file/index.html` returns `public/index.html`
 - `/file/styles/main.css` returns `public/styles/main.css`
 - `/file/` and `/file` return `public/index.html`
+
+
+src\index.html
+D:\programming\MATE\Node\HTTP\node_static-files-server\src\index.html
