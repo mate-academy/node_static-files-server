@@ -12,7 +12,11 @@ const server = http.createServer((req, res) => {
     res.end('Please add /file at the start of request');
   }
 
-  const fileName = normalizedURL.pathname.replace('/file', '') || '/index.html';
+  let fileName = normalizedURL.pathname.replace('/file', '') || '/index.html';
+
+  if (fileName === '/') {
+    fileName = '/index.html';
+  }
 
   fs.readFile(`./public${fileName}`, (error, data) => {
     if (error) {
