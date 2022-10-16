@@ -1,21 +1,34 @@
+/* eslint-disable no-console */
 'use strict';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const http = require('http');
+const fs = require('fs');
 
-module.exports = sum;
+const PORT = process.env.PORT || 3000;
+
+const server = http.createServer((req, res) => {
+  const normalizedURL = new URL(req.url, `http://${req.headers.host}`);
+
+  if (!normalizedURL.pathname.startsWith('/file')) {
+    res.end('Path must starts with /file');
+  }
+
+  let fileName = normalizedURL.pathname.replace('/file', '') || '/index.html';
+
+  if (fileName === '/') {
+    fileName = '/index.html';
+  }
+
+  fs.readFile(`./public${fileName}`, (readError, data) => {
+    if (readError) {
+      res.statusCode = 404;
+      res.end();
+    } else {
+      res.end(data);
+    }
+  });
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
