@@ -15,7 +15,7 @@ const server = http.createServer((req, res) => {
 
   let fileName = normalizedURL.pathname.replace('/file', '') || '/index.html';
 
-  if (fileName.length === 1 && fileName.endsWith('/')) {
+  if (fileName === '/') {
     fileName = '/index.html';
   }
 
