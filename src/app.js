@@ -9,9 +9,10 @@ const PORT = 3000;
 const server = http.createServer((req, res) => {
   const normalizedURL = new url.URL(req.url, `http://${req.headers.host}`);
   const startPage = '/index.html';
+  const errorMessage = 'path name does not start with "/file"';
 
   if (!normalizedURL.pathname.startsWith('/file')) {
-    res.end('path name does not start with "/file"');
+    res.end(errorMessage);
   }
 
   let fileName = normalizedURL.pathname
