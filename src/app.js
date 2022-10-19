@@ -7,12 +7,12 @@ const PORT = process.env.PORT || 8080;
 
 const server = http.createServer((req, res) => {
   const normalizedURL = new URL(req.url, `http://${req.headers.host}`);
+  const parts = normalizedURL.pathname.slice(1).split('/');
 
-  if (!(normalizedURL.startsWith('/file'))) {
+  if (parts[0] !== 'file') {
     res.end('Make sure the file path starts with "/file/"!');
   } else {
-    const fileName = normalizedURL.pathname.replace('/file', '')
-    || 'index.html';
+    const fileName = req.url.slice(1).replace(/file\//g, '');
 
     fs.readFile(`./public/${fileName}`, (error, data) => {
       if (!error) {
