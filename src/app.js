@@ -9,9 +9,25 @@ const PORT = process.env.port || 8080;
 
 const server = http.createServer((req, res) => {
   const normalizedURL = new url.URL(req.url, `http://${req.headers.host}`);
-  const myURL = normalizedURL.pathname.slice(1) || 'index.html';
+  const myURL = normalizedURL.pathname.slice(1) === 'favicon.ico'
+    ? 'index.html'
+    : normalizedURL.pathname.slice(1);
 
-  if (myURL.includes('file')) {
+  console.log('url', myURL);
+
+  if (myURL === 'file' || myURL === 'file/') {
+    fs.readFile(`./src/public/index.html`, (err, data) => {
+      if (err) {
+        console.error(err);
+        res.statusCode = 404;
+
+        res.end();
+      } else {
+        res.statusCode = 200;
+        res.end(data);
+      }
+    });
+  } else if (myURL.includes('file')) {
     fs.readFile(`./src/public/${myURL.replace('file/', '')}`, (err, data) => {
       if (err) {
         console.error(err);
