@@ -1,0 +1,8 @@
+/*Example CSS file*/
+* {
+  box-sizing: border-box;
+}
+
+.test {
+  color: gray;
+}
