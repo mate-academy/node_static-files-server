@@ -12,9 +12,20 @@ const path = require('path');
 // Server init:
 const server = http.createServer((request, response) => {
   // Get file name from url params:
-  const fileFromParam = request.url.split('/').slice(2).join('/');
+  const fileFromParam = request.url.split('/').slice(1);
+
+  // Hint if the pathname does not start with /file/:
+  if (fileFromParam[0] !== 'file') {
+    response.end(`
+      Please, use address like /file/*filename* to get the file.
+    `);
+
+    return;
+  }
+
   // Get absolute path to file using 'path' module:
-  const filePath = path.join(__dirname, '/public/' + fileFromParam);
+  const filePath = path
+    .join(__dirname, '/public/' + fileFromParam.slice(1).join('/'));
 
   // Set response type to text:
   response.setHeader('Content-Type', 'text/plain');
