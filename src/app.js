@@ -2,35 +2,39 @@
 
 const http = require('http');
 const fs = require('fs');
-const url = require('url');
 const path = require('path');
 
 const PORT = process.env.PORT || 8080;
 
 const server = http.createServer((req, res) => {
-  if (!(req.url.startsWith('/file') || req.url === '/')) {
-    res.write('the path should start with "/file/"');
+  const url = new URL(req.url, `http://${req.headers.host}`);
+
+  if (!(url.pathname.startsWith('/file') || req.url === '/')) {
+    res.end('the path should start with "/file/"');
+
+    return;
   }
 
-  const normalizedURL = new url.URL(
-    req.url.slice(6) || 'index.html',
-    `http://${req.headers.host}`
-  );
+  const fileName = url.pathname.slice(6) || 'index.html';
+  const filePath = path.resolve('public', fileName);
 
-  const fileName = normalizedURL.pathname;
+  if (!fs.existsSync(filePath)) {
+    res.statusCode = 404;
+    res.end('File does not exist');
 
-  fs.readFile(
-    path.join(__dirname, `/../public${fileName}`),
-    'utf8',
-    (err, data) => {
-      if (!err) {
-        res.end(data);
-      } else {
-        res.statusCode = 404;
-        res.end();
-      }
+    return;
+  }
+
+  fs.readFile(filePath, 'utf-8', (err, data) => {
+    if (err) {
+      res.statusCode = 500;
+      res.end('Something went wrong');
+
+      return;
     }
-  );
+
+    res.end(data);
+  });
 });
 
 server.listen(PORT);
