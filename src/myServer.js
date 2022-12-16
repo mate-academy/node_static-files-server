@@ -47,6 +47,7 @@ const server = http.createServer((req, resp) => {
         resp.statusCode = 404;
 
         resp.end(
+          // eslint-disable-next-line max-len
           `There is no file with "${pathArr[pathArr.length - 1]}" name. Try again.`
         );
         break;
@@ -57,5 +58,6 @@ const server = http.createServer((req, resp) => {
 });
 
 server.listen(PORT, () => {
+  // eslint-disable-next-line no-console
   console.log(`Server is starting on http://localhost:${PORT}`);
 });
