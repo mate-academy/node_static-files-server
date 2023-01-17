@@ -16,8 +16,7 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const fileName = pathname.slice(1).split('/').slice(1).join('/')
-    || 'index.html';
+  const fileName = pathname.split('/').slice(2).join('/') || 'index.html';
 
   fs.readFile(`./public/${fileName}`, (error, data) => {
     if (error) {
