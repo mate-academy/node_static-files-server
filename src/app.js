@@ -1,21 +1,36 @@
 'use strict';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const http = require('http');
+const fs = require('fs');
 
-module.exports = sum;
+const PORT = process.env.PORT || 8080;
+
+const server = http.createServer((req, res) => {
+  const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
+  let pathname = '';
+  const pathnameToCorrect = normalizedUrl.pathname.startsWith('/file');
+
+  if (pathnameToCorrect) {
+    pathname = `../public/${normalizedUrl.pathname.slice(6) || 'index.html'}`;
+  } else {
+    res.end(
+      'Current pathname is wrong.'
+      + 'Please correct your request according to example path'
+      + '"/file/<FILE_NAME>"'
+    );
+  }
+
+  fs.readFile(pathname, (err, data) => {
+    if (err) {
+      res.statusCode = 404;
+      res.end();
+    } else {
+      res.end(data);
+    }
+  });
+});
+
+server.listen(PORT, () => {
+  // eslint-disable-next-line no-console
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
