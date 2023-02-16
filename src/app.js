@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const http = require('http');
@@ -5,24 +6,26 @@ const fs = require('fs/promises');
 
 const PORT = process.env.PORT || 8080;
 
-const server = http.createServer(async (req, resp) => {
+const server = http.createServer(async(req, resp) => {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
   if (!url.pathname.startsWith('/file')) {
     resp.statusCode = 400;
-    resp.statusMessage = 'Bad request'
+    resp.statusMessage = 'Bad request';
 
     resp.end('pathname should start from "/file/"');
 
-    return
+    return;
   }
 
-  let filePath = `src/public/${url.pathname.slice(6) ||  'index.html'}`;
+  let filePath = `src/public/${url.pathname.slice(6) || 'index.html'}`;
 
-  const isExtensionInFileName = filePath.slice(filePath.lastIndexOf('/')).includes('.');
-  
+  const isExtensionInFileName = filePath
+    .slice(filePath.lastIndexOf('/'))
+    .includes('.');
+
   if (!isExtensionInFileName) {
-    filePath += '.html'
+    filePath += '.html';
   }
 
   try {
@@ -30,15 +33,14 @@ const server = http.createServer(async (req, resp) => {
 
     resp.statusCode = 200;
     resp.statusMessage = 'OK';
-    resp.end(page)
+    resp.end(page);
   } catch (error) {
     resp.statusCode = 404;
-    resp.statusMessage = 'Page not foud'
-    resp.end(`${url.pathname} not found!`)
+    resp.statusMessage = 'Page not foud';
+    resp.end(`${url.pathname} not found!`);
   }
-
-})
+});
 
 server.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
-})
+});
