@@ -19,10 +19,10 @@ const server = http.createServer((req, res) => {
       if (!err) {
         res.statusCode = 200;
         res.end(data);
-      } else {
-        res.statusCode = 404;
-        res.end('404 Not Found');
       }
+      
+      res.statusCode = 404;
+      res.end('404 Not Found');
     });
   } else {
     res.statusCode = 404;
