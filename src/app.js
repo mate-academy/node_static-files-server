@@ -15,6 +15,10 @@ const server = http.createServer((req, res) => {
     console.log('Write a correct address. Exp: /file/styles/main.css');
   }
 
+  if (parts.length === 1) {
+    parts.push('index.html');
+  }
+
   parts[0] = 'public';
 
   const correctPath = parts.join('/');
