@@ -7,14 +7,15 @@ const PORT = process.argv[2] || 8080;
 
 http.createServer((req, res) => {
   const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
-  const doesFilePartExist = normalizedUrl.pathname.split('/')[1] === 'file';
+  const doesFilePartExist = normalizedUrl.pathname.startsWith('/file');
   const partialPathToFile = normalizedUrl.pathname
     .split('/')
     .slice(2)
-    .filter(Boolean);
+    .join('/');
+
   const pathToFile = partialPathToFile.length === 0
     ? 'public/index.html'
-    : ['public', ...partialPathToFile].join('/');
+    : ['public', partialPathToFile].join('/');
 
   if (!doesFilePartExist) {
     res.statusMessage = 'your request should'
