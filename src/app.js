@@ -8,14 +8,16 @@ const server = http.createServer((req, res) => {
   const url = new URL(req.url, `https://${req.headers.host}`);
   const { pathname } = url;
 
-  if (!pathname.startsWith('/file/')) {
+  let fileName = '';
+
+  if (pathname.startsWith('/file')) {
+    fileName = `../public${pathname.slice(6) || 'index.html'}`;
+  } else {
     res.statusCode = 400;
     res.end('Invalid path. Please use a path starting with /file/');
 
     return;
   }
-
-  const fileName = `public${pathname.slice('/file/'.length)}`;
 
   fs.readFile(fileName, (error, data) => {
     if (error) {
