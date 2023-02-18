@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 'use strict';
 
 const http = require('http');
@@ -16,8 +15,6 @@ const server = http.createServer((request, response) => {
     response.end('Please send correct request with "/file/<FILE_NAME>" format');
   }
 
-  console.log(fileName);
-
   fs.readFile(`./public/${fileName}`, (error, data) => {
     if (error) {
       response.statusCode = 404;
@@ -28,8 +25,4 @@ const server = http.createServer((request, response) => {
   });
 });
 
-server.listen(PORT, () => {
-  console.log(`Server is runnig on http://localhost:${PORT}`);
-});
-
-module.exports = { server };
+server.listen(PORT);
