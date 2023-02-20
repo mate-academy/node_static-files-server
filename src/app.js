@@ -1,7 +1,7 @@
 'use strict';
 
 const app = require('express')();
-const { readFile } = require('fs');
+const { readFile } = require('fs/promises');
 const port = process.env.PORT || 3000;
 
 app.use('/', (req, res, next) => {
@@ -15,13 +15,9 @@ app.use('/', (req, res, next) => {
 app.use('/file', (req, res) => {
   const file = req.path.slice(1) || 'index.html';
 
-  readFile(`./public/${file}`, (err, data) => {
-    if (!err) {
-      return res.end(data);
-    }
-
-    res.sendStatus(404);
-  });
+  readFile(`./public/${file}`)
+    .then(data => res.end(data))
+    .catch(() => res.sendStatus(404));
 });
 
 app.listen(port);
