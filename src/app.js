@@ -5,40 +5,41 @@ const http = require('http');
 const fs = require('fs').promises;
 const path = require('path');
 const PORT = 3000;
+const emptyPathLength = 1;
+const publicPathPrefix = 'public';
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async(req, res) => {
   const normalizeURL = new URL(req.url, `http://${req.headers.host}`);
 
   const parts = normalizeURL.pathname.slice(1).split('/');
+  const prefixPart = parts[0];
 
-  if (parts[0] !== 'file') {
+  if (prefixPart !== 'file') {
     console.log('Write a correct address. Exp: /file/styles/main.css');
   }
 
-  if (parts.length === 1) {
+  if (parts.length === emptyPathLength) {
     parts.push('index.html');
   }
 
-  parts[0] = 'public';
+  parts[0] = publicPathPrefix;
 
   const correctPath = parts.join('/');
 
-  (async() => {
-    try {
-      const fileData = await fs.readFile(
-        path.join(__dirname, '../', correctPath), 'utf-8');
+  try {
+    const fileData = await fs.readFile(
+      path.join(__dirname, '../', correctPath), 'utf-8');
 
-      res.setHeader('Content-Type', 'application/json');
+    res.setHeader('Content-Type', 'application/json');
 
-      res.end(JSON.stringify({
-        fileData,
-      }));
-    } catch (e) {
-      res.statusCode = 404;
-      res.statusMessage = 'Non existent file';
-      res.end();
-    }
-  })();
+    res.end(JSON.stringify({
+      fileData,
+    }));
+  } catch (e) {
+    res.statusCode = 404;
+    res.statusMessage = 'Non existent file';
+    res.end();
+  }
 });
 
 server.listen(PORT, () => {
