@@ -1,10 +1,10 @@
 'use strict';
 
 const http = require('http');
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
-const server = http.createServer((req, res) => {
+const server = http.createServer(async(req, res) => {
   if (!req.url.startsWith('/file')) {
     res.end('pathname should start with `/file`');
 
@@ -16,14 +16,14 @@ const server = http.createServer((req, res) => {
     .replace(/\/file\/*/, '') || 'index.html';
   const filePath = path.join(__dirname, 'public', fileName);
 
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      res.statusCode = 404;
-      res.end();
-    } else {
-      res.end(data);
-    }
-  });
+  try {
+    const file = await fs.readFile(filePath);
+
+    res.end(file);
+  } catch (err) {
+    res.statusCode = 404;
+    res.end();
+  }
 });
 
 server.listen(3000);
