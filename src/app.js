@@ -3,7 +3,6 @@
 const http = require('http');
 const fs = require('fs');
 const url = require('url');
-const { log } = require('console');
 
 const PORT = process.env.PORT || 3000;
 
@@ -17,13 +16,14 @@ const server = http.createServer((req, res) => {
   };
 
   const removeFile = pathname.replace('/file', '');
-  const returnFile = pathname.startsWith('/')
-    ? pathname.slice(1)
-    : pathname;
+  console.log(removeFile, '>>>');
+  const returnFile = removeFile.startsWith('/')
+    ? removeFile.slice(1)
+    : removeFile;
 
   const filename = returnFile || 'index.html';
 
-  fs.readFile(`./public/${removeFile}`, (err, data) => {
+  fs.readFile(`./public/${filename}`, (err, data) => {
     if (err) {
       res.statusCode = 404;
       req.statusMessage = 'The requestis invalid';

@@ -1,3 +1,5 @@
+/* eslint no-console: "error" */
+
 'use strict';
 const http = require('http');
 
