@@ -1,21 +1,11 @@
+/* eslint-disable no-console */
 'use strict';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const { server } = require('./server');
 
-module.exports = sum;
+const BASE = 'http://localhost';
+const PORT = process.env.PORT || 3040;
+
+server.listen(PORT, () => {
+  console.log(`Server is running on ${BASE}:${PORT}\n`);
+});
