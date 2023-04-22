@@ -10,19 +10,20 @@ const PORT = process.env.port || 3000;
 const server = http.createServer((req, res) => {
   const normalizedURL = new URL(req.url, `http://${req.headers.host}`);
   const filePath = normalizedURL.pathname;
-  const fileName = path.basename(filePath) || 'index.html';
-  const dirName = path.dirname(filePath);
+  const fileName = path.basename(filePath);
+  const fileAbsolutePath = path.join(__dirname, 'public', fileName);
 
-  if (dirName !== '/file') {
+  if (!filePath.startsWith('/file')) {
+    res.statusCode = 400;
     res.end('The pathname has to start with "/file/"');
 
     return;
   }
 
-  fs.readFile(`./src/public/${fileName}`, (err, data) => {
+  fs.readFile(fileAbsolutePath, (err, data) => {
     if (err) {
       res.statusCode = 404;
-      res.end();
+      res.end('File does not exist');
     } else {
       res.end(data);
     }
