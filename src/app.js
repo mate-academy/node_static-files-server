@@ -4,12 +4,12 @@ const http = require('http');
 const fs = require('fs/promises');
 const { existsSync } = require('fs');
 const myConsole = require('console');
-const { getNoramlizedPath } = require('./getNormalizedPath');
+const { getNormalizedPath } = require('./getNormalizedPath');
 
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(async(request, response) => {
-  const sourcePath = getNoramlizedPath(request.url, request.headers.host);
+  const sourcePath = getNormalizedPath(request.url, request.headers.host);
 
   if (!sourcePath) {
     response.statusCode = 400;
@@ -39,7 +39,7 @@ const server = http.createServer(async(request, response) => {
 });
 
 server.listen(PORT, () => {
-  myConsole.log(`Server is running`);
+  myConsole.log(`Server is running on ${PORT} port`);
 });
 
 http.get(`http://localhost:${PORT}/file/styles/main.css`);

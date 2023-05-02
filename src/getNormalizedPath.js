@@ -2,10 +2,10 @@
 
 const url = require('url');
 
-const getNoramlizedPath = (requestUrl, requestHost) => {
+const getNormalizedPath = (requestUrl, requestHost) => {
   const normalizedUrl = new url.URL(
     requestUrl,
-    `htpp://${requestHost}`
+    `http://${requestHost}`
   );
 
   if (!normalizedUrl.pathname.startsWith('/file')) {
@@ -25,5 +25,5 @@ const getNoramlizedPath = (requestUrl, requestHost) => {
 };
 
 module.exports = {
-  getNoramlizedPath,
+  getNormalizedPath,
 };
