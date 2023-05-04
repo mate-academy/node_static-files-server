@@ -8,11 +8,16 @@ const app = express();
 
 const PORT = 5000;
 
-const PUBLIC_PATH = path.join(__dirname, 'public');
+const PUBLIC_PATH = path.join(__dirname, '..', 'public');
 
 app.get('/file/*', (req, res) => {
   const params = req.params[0];
   const filePath = path.join(PUBLIC_PATH, params);
+  const relativePath = path.relative(PUBLIC_PATH, filePath);
+
+  if (relativePath.startsWith('..')) {
+    return res.sendStatus(403);
+  }
 
   if (!fs.existsSync(filePath)) {
     res.sendStatus(404);
