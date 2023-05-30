@@ -11,8 +11,11 @@ const server = http.createServer((req, res) => {
   const isValidURL = normalizedURL.pathname.startsWith('/file/');
 
   if (!isValidURL) {
-    res.end('You must start your request with /file/');
+    throw new Error('You must start your request with /file/');
   }
+
+  // eslint-disable-next-line no-console
+  console.log(normalizedURL.pathname);
 
   let fileName = normalizedURL.pathname
     .replace('file', '')
@@ -40,7 +43,7 @@ server.listen(PORT, () => {
 const options = {
   hostname: 'localhost',
   port: PORT,
-  path: 'app.js',
+  path: '/file/index.html',
 };
 
 http.get(options, (response) => {
