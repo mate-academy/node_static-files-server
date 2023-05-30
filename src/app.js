@@ -8,6 +8,12 @@ const href = `http://localhost:${PORT}`;
 
 const server = http.createServer((req, res) => {
   const normalizedURL = new URL(req.url, `http://${req.headers.host}`);
+  const isValidURL = normalizedURL.pathname.startsWith('/file/');
+
+  if (!isValidURL) {
+    res.end('You must start your request with /file/');
+  }
+
   let fileName = normalizedURL.pathname
     .replace('file', '')
     .slice(1) || 'index.html';
@@ -34,7 +40,7 @@ server.listen(PORT, () => {
 const options = {
   hostname: 'localhost',
   port: PORT,
-  path: '/file/',
+  path: 'app.js',
 };
 
 http.get(options, (response) => {
