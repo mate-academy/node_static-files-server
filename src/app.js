@@ -12,8 +12,7 @@ const server = http.createServer((req, res) => {
 
   if (!isCorectPath) {
     res.statusCode = 400;
-
-    return res.end('Your request should start with </file/>');
+    res.end('Your request should start with </file/>');
   }
 
   const correctPath = filePath.slice(5) || 'index.html';
