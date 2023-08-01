@@ -2,13 +2,21 @@
 'use strict';
 
 const http = require('http');
+const nodeUrl = require('url');
+const nodePath = require('path');
 
-const BASE = 'http://localhost:8800';
-const pathname = '/file/index.html';
-const href = BASE + pathname;
+const myUrl = new nodeUrl.URL('http://localhost:8800');
 
-const req = http.request(href, (res) => {
-  console.log(res.statusCode);
+myUrl.pathname = nodePath.join('file');
+
+const req = http.request(myUrl, (res) => {
+  if (res.statusCode === 404) {
+    console.log('File was not found');
+  }
+
+  if (res.statusCode === 200) {
+    console.log('Succssesfully');
+  }
 
   res.setEncoding('utf8');
 

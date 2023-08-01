@@ -35,8 +35,7 @@ const server = http.createServer((req, res) => {
     const extension = path.extname(absolutePath);
     const contentType = getContentType(extension);
 
-    res.getHeader('Content-type', contentType);
-    console.log(data);
+    res.setHeader('Content-type', contentType);
     res.end(data);
   });
 });

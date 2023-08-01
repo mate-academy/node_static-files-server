@@ -24,5 +24,8 @@
   },
   "mateAcademy": {
     "projectType": "javascript"
+  },
+  "dependencies": {
+    "url-join": "^5.0.0"
   }
 }
