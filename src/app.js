@@ -11,20 +11,18 @@ const staticFiles = () => {
     }
 
     if (!req.url.includes('file')) {
-      console.log('Start request with "file"');
-      res.end();
+      res.end('Start request with "file"');
+      res.statusCode = 400;
+      res.statusMessage = 'Bad request';
 
       return;
     }
 
     try {
-      const pathSet = new Set(req.url.split('/'));
+      const url = new URL(req.url, `http://${req.headers.host}`);
 
-      pathSet.delete('');
-
-      const pathName = [...pathSet];
-
-      let dest = pathName.join('/');
+      const pathName = url.pathname.slice(1).split('/').filter(d => d !== '');
+      let dest = pathName.join('/').replace('file', 'public');
 
       if (pathName.length === 1) {
         dest = 'public/index.html';
@@ -32,6 +30,8 @@ const staticFiles = () => {
 
       const data = fs.readFileSync(`./${dest}`);
 
+      res.statusCode = 200;
+      res.statusMessage = 'OK';
       res.end(data);
     } catch (error) {
       res.statusCode = 404;
