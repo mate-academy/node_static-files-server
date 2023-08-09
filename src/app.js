@@ -21,7 +21,8 @@ const staticFiles = () => {
     try {
       const url = new URL(req.url, `http://${req.headers.host}`);
 
-      const pathName = url.pathname.slice(1).split('/').filter(d => d !== '');
+      const pathName = url.pathname
+        .slice(1).split('/').filter(d => d.trim() !== '');
       let dest = pathName.join('/').replace('file', 'public');
 
       if (pathName.length === 1) {
