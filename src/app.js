@@ -11,7 +11,7 @@ const staticFiles = () => {
     }
 
     if (!req.url.includes('file')) {
-      res.end('Start request with "file"');
+      res.end('<h4>Start request with "/file.."</h4>');
       res.statusCode = 400;
       res.statusMessage = 'Bad request';
 
@@ -19,24 +19,20 @@ const staticFiles = () => {
     }
 
     try {
-      const url = new URL(req.url, `http://${req.headers.host}`);
+      const myUrl = new URL(req.url, `http://${req.headers.host}`);
 
-      const pathName = url.pathname
-        .slice(1).split('/').filter(d => d.trim() !== '');
-      let dest = pathName.join('/').replace('file', 'public');
+      const pathName = myUrl.pathname.replace(/\.\.\//g, '');
 
-      if (pathName.length === 1) {
-        dest = 'public/index.html';
-      }
+      const destination = pathName.replace(/^\/file(\/)?|\/$/, '')
+        || 'index.html';
 
-      const data = fs.readFileSync(`./${dest}`);
+      const data = fs.readFileSync(`./public/${destination}`);
 
       res.statusCode = 200;
       res.statusMessage = 'OK';
       res.end(data);
     } catch (error) {
       res.statusCode = 404;
-      console.log(error);
       res.end();
     }
   });
