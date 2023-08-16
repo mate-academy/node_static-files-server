@@ -1,6 +1,6 @@
 /* eslint-disable no-console */
 
-"use strict";
+'use strict';
 
 const http = require('http');
 const fs = require('fs');
