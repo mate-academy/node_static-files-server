@@ -35,6 +35,8 @@ const server = http.createServer((req, res) => {
     if (!mimeType[fileExtension]) {
       res.statusCode = 400;
       res.end('File extension is not supported');
+
+      return;
     }
 
     fs.readFile(`./public/${fileName}`, (error, data) => {
