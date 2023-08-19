@@ -32,18 +32,15 @@ const server = http.createServer((req, res) => {
       mp3: 'audio/mpeg',
     };
 
-    if (!mimeType[fileExtension]) {
-      res.statusCode = 400;
-      res.end('File extension is not supported');
-
-      return;
-    }
-
     fs.readFile(`./public/${fileName}`, (error, data) => {
       if (error) {
         res.statusCode = 404;
+        res.end('File not found');
       } else {
-        res.setHeader('Content-Type', `${mimeType[fileExtension]}`);
+        res.setHeader(
+          'Content-Type',
+          `${mimeType[fileExtension] || 'application/octet-stream'}`,
+        );
         res.end(data);
       }
     });
