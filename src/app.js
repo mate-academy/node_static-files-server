@@ -2,8 +2,6 @@
 
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
-const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 // eslint-disable-next-line max-len
@@ -25,8 +23,7 @@ const server = http.createServer((req, res) => {
       throw new Error(WRONG_PATH_MESSAGE);
     }
 
-    const fullPath = path
-      .join(__dirname, '..', filePath.replace('file', 'public'));
+    const fullPath = '.' + filePath.replace('file', 'public');
 
     if (!fs.existsSync(fullPath)) {
       throw new Error(WRONG_PATH_MESSAGE);
@@ -36,9 +33,7 @@ const server = http.createServer((req, res) => {
       'Content-type': 'file',
     };
 
-    const fullPathSecured = new url.URL(fullPath, `http://${req.headers.host}`);
-
-    const fileStream = fs.createReadStream(fullPathSecured.href);
+    const fileStream = fs.createReadStream(fullPath);
 
     fileStream.pipe(res);
   } catch (err) {
