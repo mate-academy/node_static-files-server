@@ -1,21 +1,52 @@
+/* eslint-disable no-console */
 'use strict';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const http = require('http');
+const fs = require('fs');
 
-module.exports = sum;
+const PORT = process.env.PORT || 3001;
+
+const server = http.createServer((req, res) => {
+  const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
+
+  const validPath = normalizedUrl.pathname.split('/')[1] === 'file';
+
+  if (!validPath) {
+    res.statusCode = 400;
+    res.end('Path is not correct. Should be /file/<path>');
+  } else {
+    const fileName
+      = normalizedUrl.pathname.split('/').slice(2).join('/') || 'index.html';
+
+    const fileExtension = fileName.split('.').slice(-1);
+
+    const mimeType = {
+      html: 'text/html',
+      css: 'text/css',
+      js: 'text/javascript',
+      jpg: 'image/jpeg',
+      png: 'image/png',
+      json: 'application/json',
+      pdf: 'application/pdf',
+      mp4: 'video/mp4',
+      mp3: 'audio/mpeg',
+    };
+
+    fs.readFile(`./public/${fileName}`, (error, data) => {
+      if (error) {
+        res.statusCode = 404;
+        res.end('File not found');
+      } else {
+        res.setHeader(
+          'Content-Type',
+          `${mimeType[fileExtension] || 'application/octet-stream'}`,
+        );
+        res.end(data);
+      }
+    });
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`Server is running on http://localhost:${PORT}`);
+});
