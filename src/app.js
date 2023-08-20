@@ -6,7 +6,7 @@ const fs = require('fs');
 const path = require('path');
 
 const PORT = 4200;
-const publicFolder = path.join(__dirname, 'public');
+const publicFolder = path.join(__dirname, '..', 'public');
 
 function createServer() {
   return http.createServer((req, res) => {
@@ -19,7 +19,7 @@ function createServer() {
       return;
     }
 
-    fs.readFile(filePath, 'utf8', (err, data) => {
+    fs.readFile(filePath, (err, data) => {
       if (err) {
         res.writeHead(404);
         res.end('File not found');
