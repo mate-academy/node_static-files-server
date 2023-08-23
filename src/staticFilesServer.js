@@ -16,6 +16,7 @@ function staticFilesServer() {
 
     if (!path.startsWith('/file')) {
       response.statusCode = 400;
+      response.setHeader('Content-Type', 'text/plain');
       response.end('Invalid url. Please enter /file/');
 
       return;
@@ -27,9 +28,11 @@ function staticFilesServer() {
     try {
       const file = fs.readFileSync(filePath);
 
+      response.setHeader('Content-Type', 'application/octet-stream');
       response.end(file);
     } catch (error) {
       response.statusCode = 404;
+      response.setHeader('Content-Type', 'text/plain');
       response.end('File not found');
     }
   });
