@@ -8,18 +8,12 @@ function staticFilesServer() {
     const path = request.url;
 
     if (path === '/favicon.ico') {
-      response.statusCode = 204;
-      response.end();
-
-      return;
+      response.writeHead(204).end();
     }
 
     if (!path.startsWith('/file')) {
-      response.statusCode = 400;
-      response.setHeader('Content-Type', 'text/plain');
+      response.writeHead(400, { 'Content-Type': 'text/plain' });
       response.end('Invalid url. Please enter /file/...');
-
-      return;
     }
 
     const requestPath = path.slice('/file/'.length);
@@ -31,8 +25,7 @@ function staticFilesServer() {
       response.setHeader('Content-Type', 'application/octet-stream');
       response.end(file);
     } catch (error) {
-      response.statusCode = 404;
-      response.setHeader('Content-Type', 'text/plain');
+      response.writeHead(404, { 'Content-Type': 'text/plain' });
       response.end('File not found');
     }
   });
