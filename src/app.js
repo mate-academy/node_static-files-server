@@ -25,6 +25,7 @@ const server = http.createServer((req, res) => {
     }
 
     res.statusCode = 404;
+    res.statusMessage = 'Not Found';
     res.end();
   });
 });
