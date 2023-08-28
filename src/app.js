@@ -12,10 +12,10 @@ const server = http.createServer((req, res) => {
     res.end('The pathname should start with "/file"');
   }
 
-  const fileName = req.url.slice(6) || 'index.html';
+  const fileName = corectUrl.pathname.replace('/file', '') || 'index.html';
 
   try {
-    const data = fs.readFileSync(`./public/${fileName}`, 'utf-8');
+    const data = fs.readFile(`./public/${fileName}`, 'utf-8');
 
     res.statusCode = 200;
     res.end(data);
