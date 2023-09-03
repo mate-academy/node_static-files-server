@@ -7,6 +7,8 @@ const url = require('url');
 
 const PORT = process.env.PORT || 3000;
 
+const lengthForNormalizingFilePath = 6;
+
 const server = http.createServer((req, res) => {
   const normalizedURL = new url.URL(req.url, `http://${req.headers.host}`);
 
@@ -17,8 +19,8 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const fileName
-    = normalizedURL.pathname.slice(6) || 'index.html';
+  const fileName = normalizedURL.pathname.slice(lengthForNormalizingFilePath)
+    || 'index.html';
 
   fs.readFile(`./public/${fileName}`, (error, data) => {
     if (error) {

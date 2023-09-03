@@ -10,6 +10,5 @@ const options = {
 };
 
 http.get(options, (res) => {
-  res.setEncoding('utf8');
-  res.on('data', console.log);
+  res.setEncoding('utf8').on('data', console.log);
 });
