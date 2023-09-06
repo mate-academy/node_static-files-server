@@ -1,24 +1,29 @@
-/* eslint-disable no-console */
 'use strict';
 
 const http = require('http');
+const path = require('path');
 const fs = require('fs');
 
 const PORT = process.env.PORT || 3001;
 
 const server = http.createServer((req, res) => {
-  const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
+  const url = new URL(req.url, `http://${req.headers.host}`);
 
-  const validPath = normalizedUrl.pathname.split('/')[1] === 'file';
-
-  if (!validPath) {
-    res.statusCode = 400;
-    res.end('Path is not correct. Should be /file/<path>');
+  if (url.pathname.split('/')[1] !== 'file') {
+    res.statusCode = 404;
+    res.end('Path not found');
   } else {
-    const fileName
-      = normalizedUrl.pathname.split('/').slice(2).join('/') || 'index.html';
+    const filePath = path.join(__dirname, 'public',
+      url.pathname.split('/').slice(2).join('/'));
 
-    const fileExtension = fileName.split('.').slice(-1);
+    if (!filePath.startsWith(path.join(__dirname, 'public'))) {
+      res.statusCode = 403;
+      res.end('Forbidden');
+
+      return;
+    }
+
+    const fileExtension = path.extname(filePath).slice(1);
 
     const mimeType = {
       html: 'text/html',
@@ -28,19 +33,14 @@ const server = http.createServer((req, res) => {
       png: 'image/png',
       json: 'application/json',
       pdf: 'application/pdf',
-      mp4: 'video/mp4',
-      mp3: 'audio/mpeg',
     };
 
-    fs.readFile(`./public/${fileName}`, (error, data) => {
-      if (error) {
+    fs.readFile(filePath, (err, data) => {
+      if (err) {
         res.statusCode = 404;
         res.end('File not found');
       } else {
-        res.setHeader(
-          'Content-Type',
-          `${mimeType[fileExtension] || 'application/octet-stream'}`,
-        );
+        res.setHeader('Content-Type', mimeType[fileExtension] || 'text/plain');
         res.end(data);
       }
     });
@@ -48,5 +48,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  // console.log removed
 });
