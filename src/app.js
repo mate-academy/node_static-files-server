@@ -18,10 +18,12 @@ const server = http.createServer((req, res) => {
     fs.readFile(`./public/${fileName}`, { encoding: 'utf8' }, (err, data) => {
       if (!err) {
         res.end(data);
+
+        return;
       }
 
       res.statusCode = 404;
-      res.end();
+      res.end('The specified file wasn\'t found.');
     });
   } else {
     res.end('The name of file is required. For example: /file/index.html');
