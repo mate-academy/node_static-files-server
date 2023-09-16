@@ -8,13 +8,15 @@ const fs = require('fs');
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer((req, res) => {
-  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Type', 'application/octet-stream');
 
   const normalizedURL = new url.URL(req.url, `http://${req.headers.host}`);
   const parts = normalizedURL.pathname.slice(1).split('/');
 
   if (parts[0] !== 'file') {
-    res.end('Pathname must start with "/file/"');
+    res.setHeader('Content-Type', 'text/plain');
+    res.statusCode = 400;
+    res.end('Pathname must start with /file/');
 
     return;
   }
@@ -23,6 +25,7 @@ const server = http.createServer((req, res) => {
 
   fs.readFile(`./public/${filePath}`, (error, data) => {
     if (error) {
+      res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 404;
       res.end('This file does not exist.');
     } else {
