@@ -29,9 +29,7 @@ const server = http.createServer((req, res) => {
       throw new Error(WRONG_PATH_MESSAGE);
     }
 
-    res.headers = {
-      'Content-type': 'file',
-    };
+    res.setHeader('Content-type', 'application/octet-stream');
 
     const fileStream = fs.createReadStream(fullPath);
 
