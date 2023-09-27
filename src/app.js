@@ -10,23 +10,17 @@ const server = http.createServer((req, res) => {
   const pureFile = normalizedURL.pathname.slice(6) || 'index.html';
 
   if (!normalizedURL.pathname.startsWith('/file/')) {
-    res.statusCode = 404;
-
-    res.end(
+    res.status(404).end(
       'Please, use /file/ for the correct file path.'
     );
   }
 
   if (fs.existsSync(`./public/${pureFile}`)) {
-    res.statusCode = 200;
-
     const data = fs.readFileSync(`./public/${pureFile}`, 'utf8');
 
     res.end(data);
   } else {
-    res.statusCode = 404;
-
-    res.end('File not found');
+    res.status(404).end('File not found');
   }
 
   return server;
