@@ -18,9 +18,9 @@ const mineTipe = {
 
 const server = http.createServer((req, res) => {
   const normalizeUrl = new URL(req.url, `http://${req.headers.host}`);
-  const fileName = normalizeUrl.pathname.slice(1).split('/');
+  const fileNameParts = normalizeUrl.pathname.split('/').filter(arr => arr);
 
-  if (fileName[0] !== 'file') {
+  if (fileNameParts[0] !== 'file') {
     res.statusCode = 412;
 
     res.end('The requested url is incorrect. '
@@ -29,13 +29,13 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  if (fileName.length === 1 || (fileName.length === 2 && !fileName[1])) {
-    fileName[1] = 'index.html';
+  if (fileNameParts.length === 1) {
+    fileNameParts[1] = 'index.html';
   }
 
-  const typeFile = fileName[fileName.length - 1].split('.');
+  const fileExtension = fileNameParts[fileNameParts.length - 1].split('.');
 
-  if (!mineTipe[typeFile[1]]) {
+  if (!mineTipe[fileExtension[1]]) {
     res.statusCode = 415;
     res.end('Server unsupported this file type');
 
@@ -44,11 +44,11 @@ const server = http.createServer((req, res) => {
 
   try {
     const data = fs.readFileSync(
-      path.join(__dirname, `../public/${fileName.slice(1).join('/')}`),
+      path.join(__dirname, `../public/${fileNameParts.slice(1).join('/')}`),
       'utf8',
     );
 
-    res.setHeader('Content-type', mineTipe[typeFile[1]]);
+    res.setHeader('Content-type', mineTipe[fileExtension[1]]);
     res.statusCode = 200;
     res.statusMessage = 'Ok';
     res.end(data);
