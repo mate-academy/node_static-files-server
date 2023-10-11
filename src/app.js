@@ -37,6 +37,8 @@ const server = http.createServer((req, res) => {
         res.end();
       }
 
+      res.statusCode = 200;
+      res.statusMessage = 'OK';
       res.end(data);
     });
   }
