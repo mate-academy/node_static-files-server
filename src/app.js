@@ -8,9 +8,23 @@ const PORT = process.env.PORT || 3006;
 
 const server = http.createServer((req, res) => {
   const normalizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
-  const fileName = normalizedUrl.pathname.slice(1) || 'index.html';
+  let message;
 
-  fs.readFile(`.file/${fileName}`, (err, data) => {
+  if (normalizedUrl
+    .pathname.slice(1).split('/')[0].localeCompare('file') === 0) {
+    message = '';
+  } else {
+    message = 'Start pathname with /file/';
+  }
+
+  const fileName = normalizedUrl
+    .pathname.slice(1).split('/').slice(1).join('/') || 'index.html';
+
+  fs.readFile(`.public/${fileName}`, (err, data) => {
+    if (!message.length) {
+      res.end(message);
+    }
+
     if (!err) {
       res.end(data);
     }
