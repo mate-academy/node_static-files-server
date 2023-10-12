@@ -1,21 +1,48 @@
+/* eslint-disable no-console */
 'use strict';
 
-/**
- * Implement sum function:
- *
- * Function takes 2 numbers and returns their sum
- *
- * sum(1, 2) === 3
- * sum(1, 11) === 12
- *
- * @param {number} a
- * @param {number} b
- *
- * @return {number}
- */
-function sum(a, b) {
-  // write code here
-  return a + b;
-}
+const http = require('http');
+const fs = require('fs');
 
-module.exports = sum;
+const PORT = process.env.PORT || 3000;
+
+const server = http.createServer((req, res) => {
+  res.setHeader('Content-type', 'application/json');
+
+  const { pathname } = new URL(req.url, `http://${req.headers.host}`);
+
+  if (pathname !== '/favicon.ico') {
+    if (!pathname.startsWith('/file')) {
+      res.statusCode = 404;
+      res.statusMessage = 'Bad request';
+
+      res.end('Your path should start with /file/name_of_file');
+
+      return;
+    };
+
+    let fileName = pathname.slice(6);
+
+    if (pathname === '/file/' || pathname === '/file') {
+      fileName = 'index.html';
+    }
+
+    fs.readFile(`./public/${fileName}`, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.statusMessage = 'File is not exist';
+        console.log(err);
+        res.end();
+      }
+
+      res.statusCode = 200;
+      res.statusMessage = 'OK';
+      console.log(data);
+      res.end(data);
+    });
+  }
+});
+
+server.listen(PORT, () => {
+  console.log(`server running on: http://localHost:${PORT}`);
+});
