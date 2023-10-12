@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
   const fileName = normalizedUrl
     .pathname.slice(1).split('/').slice(1).join('/') || 'index.html';
 
-  fs.readFile(`.public/${fileName}`, (err, data) => {
+  fs.readFile(`./public/${fileName}`, (err, data) => {
     if (!message.length) {
       res.end(message);
     }
