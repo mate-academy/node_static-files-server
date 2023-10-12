@@ -28,17 +28,16 @@ const server = http.createServer((req, res) => {
     }
 
     fs.readFile(`./public/${fileName}`, (err, data) => {
-      console.log(err);
-      console.log(data);
-
       if (err) {
         res.statusCode = 404;
         res.statusMessage = 'File is not exist';
+        console.log(err);
         res.end();
       }
 
       res.statusCode = 200;
       res.statusMessage = 'OK';
+      console.log(data);
       res.end(data);
     });
   }
