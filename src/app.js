@@ -24,7 +24,7 @@ const server = http.createServer((req, res) => {
       res.end(data);
     });
   } else {
-    res.statusCode = 404;
+    res.statusCode = 400;
     res.end('Hint: To load files, use URLs starting with "/file/".');
   }
 });
