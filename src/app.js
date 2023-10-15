@@ -9,7 +9,8 @@ const server = http.createServer((request, response) => {
   let path = normalizedUrl.pathname.split('/');
 
   if (path[0] !== 'file') {
-    response.statusCode = 404;
+    response.statusCode = 400;
+
     response.end(JSON.stringify(
       {
         error: 'Filename mast start with "/file" directory',
@@ -25,6 +26,7 @@ const server = http.createServer((request, response) => {
     fs.readFile(`.public/${path}`, (err, data) => {
       if (err) {
         response.statusCode = 404;
+
         response.end(JSON.stringify(
           {
             error: 'Error while reading a file',
