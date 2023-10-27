@@ -20,7 +20,7 @@ const server = http.createServer((req, res) => {
       }
     });
   } else {
-    res.writeHead(200, { 'Content-Type': 'text/html' });
+    res.writeHead(400, { 'Content-Type': 'text/html' });
     res.end('Hint: To load files, use URLs starting with "/file/".');
   }
 });
@@ -28,5 +28,5 @@ const server = http.createServer((req, res) => {
 const PORT = 3000;
 
 server.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  return `Server is running on port ${PORT}`;
 });
