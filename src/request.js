@@ -6,9 +6,7 @@ const http = require('http');
 const options = {
   hostname: 'localhost',
   port: 3006,
-  // path: '/file/index.html',
   path: '/file/styles/main.css',
-  // path: '/file',
 };
 
 http.get(options, res => {
