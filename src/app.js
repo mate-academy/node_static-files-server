@@ -3,7 +3,7 @@
 const http = require('http');
 const fs = require('fs');
 const STATUS_OK = 200;
-const STATUS_NOT_FOUND = 404;
+const STATUS_WRONG_REQUEST = 404;
 
 const createServer = () => {
   const server = http.createServer((req, res) => {
@@ -23,7 +23,7 @@ const createServer = () => {
         res.statusCode = STATUS_OK;
         res.end(data);
       } else {
-        res.statusCode = STATUS_NOT_FOUND;
+        res.statusCode = STATUS_WRONG_REQUEST;
         res.end('File not found');
       }
     });
