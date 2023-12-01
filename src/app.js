@@ -3,14 +3,14 @@
 const http = require('http');
 const fs = require('fs');
 const STATUS_OK = 200;
-const STATUS_WRONG_REQUEST = 404;
+const STATUS_WRONG_REQUEST = 400;
 
 const createServer = () => {
   const server = http.createServer((req, res) => {
     const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
 
     if (!normalizedUrl.pathname.startsWith('/file/')) {
-      res.writeHead(STATUS_OK, { 'Content-Type': 'text/plain' });
+      res.writeHead(STATUS_WRONG_REQUEST, { 'Content-Type': 'text/plain' });
       res.end('Hint: Load files using /file/ path');
 
       return;
