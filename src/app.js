@@ -12,16 +12,18 @@ const server = http.createServer((req, res) => {
   const fileName = normalizedUrl.pathname.slice(6) || 'index.html';
 
   if (!normalizedUrl.pathname.startsWith('/file/')) {
+    res.statusCode = 400;
     res.end('You need to start with /file/YOUR_FILE_NAME.YOUR_EXTENSION');
   }
 
   fs.readFile(`./public/${fileName}`, (error, data) => {
     if (!error) {
+      res.statusCode = 200;
       res.end(data);
     }
 
     res.statusCode = 404;
-    res.end();
+    res.end('NO FILE');
   });
 });
 
