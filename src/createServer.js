@@ -10,31 +10,37 @@ function createServer() {
     res.setHeader('Content-Type', 'text/plain');
 
     if (!pathname.startsWith('/file')) {
+      res.statusCode = 400;
+
       res.end('Invalid request: request must start'
         + ' with "/file/" + directory or file path');
 
       return;
     }
 
-    let fileName = pathname.slice(1).replace('file', 'public');
+    if (pathname.includes('//')) {
+      res.statusCode = 404;
+      res.end('"//" not supported.');
 
-    fs.stat(fileName, (err, stats) => {
-      if (!err) {
-        if (stats.isDirectory()) {
-          fileName.endsWith('/')
-            ? fileName += 'index.html'
-            : fileName += '/index.html';
-        }
+      return;
+    }
 
-        fs.readFile(fileName, 'utf8', (error, data) => {
-          if (!error) {
-            res.end(data);
-          }
-        });
-      } else {
+    let fileName = pathname.replace('/file', 'public');
+
+    if (fileName === 'public' || fileName === 'public/') {
+      fileName = 'public/index.html';
+    }
+
+    fs.readFile(fileName, 'utf8', (error, data) => {
+      if (error) {
         res.statusCode = 404;
-        res.end();
+        res.end(`${fileName} not found.`);
+
+        return;
       }
+
+      res.statusCode = 200;
+      res.end(data);
     });
   });
 }
