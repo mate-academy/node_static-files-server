@@ -2,7 +2,6 @@
 
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
 
 const FILE_PATH = '/file';
 const PUBLIC_PATH = '/public';
@@ -30,7 +29,7 @@ function createServer() {
     let publicPath = pathname.replace(FILE_PATH, PUBLIC_PATH);
 
     if (publicPath === PUBLIC_PATH || publicPath === `${PUBLIC_PATH}/`) {
-      publicPath = path.join(publicPath, 'index.html');
+      publicPath = `${publicPath}/index.html`;
     }
 
     fs.readFile(`.${publicPath}`, (error, data) => {
