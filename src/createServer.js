@@ -13,7 +13,7 @@ function createServer() {
 
     res.setHeader('Content-Type', 'text/plain');
 
-    if (!pathname.includes(FILE_PATH)) {
+    if (!pathname.startsWith(FILE_PATH)) {
       res.statusCode = 400;
       res.end('Hint: for load file `pathname` must start with `/file/`');
 
