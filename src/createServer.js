@@ -14,6 +14,13 @@ function createServer() {
       return;
     }
 
+    if (request.url.includes('..')) {
+      response.statusCode = 400;
+      response.end('/../ not allowed');
+
+      return;
+    }
+
     if (!request.url.startsWith('/file/')) {
       response.statusCode = 200;
       response.end('Pathname must start with `/file`');
