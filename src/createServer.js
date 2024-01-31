@@ -4,7 +4,6 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
-const PORT = require('./PORT');
 
 function createServer() {
   return http.createServer((request, response) => {
@@ -30,7 +29,7 @@ function createServer() {
 
     const publicPath = path.resolve(__dirname, '..', 'public');
     const parsedUrl = request.url.replace('/file', '');
-    const requestUrl = new URL(parsedUrl, `http://localhost:${PORT}`);
+    const requestUrl = new URL(parsedUrl, `http://${request.headers.host}`);
     const filePath = path.join(publicPath, requestUrl.pathname);
 
     try {
