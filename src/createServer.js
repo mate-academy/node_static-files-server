@@ -9,15 +9,9 @@ function createServer() {
 
     const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
 
-    if (req.url.includes('../')) {
+    if (!normalizedUrl.pathname.startsWith('/file/')) {
       res.statusCode = 400;
 
-      res.end('Acces denied`');
-
-      return;
-    }
-
-    if (!normalizedUrl.pathname.startsWith('/file/')) {
       res.end('Hint: for load file `pathname` must start with `/file/`');
 
       return;
