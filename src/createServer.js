@@ -24,6 +24,13 @@ function createServer() {
       return;
     }
 
+    if (pathname.includes('..')) {
+      res.statusCode = 400;
+      res.end('Invalid request. Not allowed traversal paths');
+
+      return;
+    }
+
     if (pathname.includes('//')) {
       res.statusCode = 404;
       res.end('File not found');
