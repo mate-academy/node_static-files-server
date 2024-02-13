@@ -3,15 +3,13 @@
 
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
 
 function createServer() {
   const PUBLIC_DIR = 'public';
-  const PUBLIC_DIR_PATH = path.resolve(__dirname, `../${PUBLIC_DIR}`);
   const FILE_PATH = '/file/';
   const INDEX = 'index.html';
 
-  return http.createServer(async(req, res) => {
+  return http.createServer((req, res) => {
     res.setHeader('Content-Type', 'text/plain');
 
     const { pathname } = new URL(
@@ -41,16 +39,16 @@ function createServer() {
       pathParts.push(INDEX);
     }
 
-    const filePath = path.join(PUBLIC_DIR_PATH, ...pathParts);
+    const filePath = pathname.slice(FILE_PATH.length) || INDEX;
 
-    try {
-      const data = await fs.promises.readFile(filePath);
+    fs.readFile(`./${PUBLIC_DIR}/${filePath}`, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.end('File not found');
+      }
 
       res.end(data);
-    } catch (err) {
-      res.statusCode = 404;
-      res.end('File not found');
-    }
+    });
   });
 }
 
