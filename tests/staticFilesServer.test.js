@@ -63,9 +63,10 @@ describe('Static files server', () => {
         fs.writeFileSync(mainCSSFilePath, randomCSSContent);
       });
 
-      beforeEach(() => {
+      beforeEach(async() => {
         server = createServer();
         server.listen(PORT);
+        await new Promise((resolve) => setTimeout(resolve, 0));
       });
 
       afterEach(() => {
