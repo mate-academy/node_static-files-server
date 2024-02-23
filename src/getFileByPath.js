@@ -15,6 +15,8 @@ async function getFileByPath(path) {
       throw newError;
     }
 
+    // console.log(error.message);
+
     throw error;
   }
 }

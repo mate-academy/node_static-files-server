@@ -8,11 +8,12 @@ function createServer() {
   return http.createServer((request, response) => {
     getPathToFile(request)
       .then(getFileByPath)
-      .then(response.end)
+      .then(data => response.end(data))
       .catch(error => {
         response.setHeader('Content-Type', 'text/plain');
-        response.statusCode = error.code;
-        response.end(error.message);
+        response.statusCode = error.code || 500;
+
+        response.end(error.code === 500 ? 'Server error' : error.message);
       });
   });
 }
