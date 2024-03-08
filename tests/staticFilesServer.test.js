@@ -17,16 +17,16 @@ function generateRandomCSS() {
     .${faker.lorem.word()} {
       color: ${faker.internet.color()};
       font-size: ${faker.number.int({
-        min: 12, max: 24,
-      })}px;
+    min: 12, max: 24,
+  })}px;
     }
 
     .${faker.lorem.word()} {
       background-color: ${faker.internet.color()};
       border: 2px solid ${faker.internet.color()};
       padding: ${faker.number.int({
-        min: 5, max: 20,
-      })}px;
+    min: 5, max: 20,
+  })}px;
     }
   `;
 }
@@ -39,7 +39,7 @@ describe('Static files server', () => {
           .toBeInstanceOf(Function);
       });
 
-      it('should create an instance of Server', async() => {
+      it('should create an instance of Server', async () => {
         expect(createServer())
           .toBeInstanceOf(Server);
       });
@@ -83,14 +83,14 @@ describe('Static files server', () => {
       });
 
       describe('Valid file requests', () => {
-        it('should return the correct file for a valid path', async() => {
+        it('should return the correct file for a valid path', async () => {
           const response = await axios.get(`${HOST}/file/index.html`);
 
           expect(response.status).toBe(200);
           expect(response.data).toContain('<!DOCTYPE html>');
         });
 
-        it('should return the correct file for a valid subfolder path', async() => {
+        it('should return the correct file for a valid subfolder path', async () => {
           const response = await axios.get(`${HOST}/file/styles/main.css`);
 
           expect(response.status).toBe(200);
@@ -99,7 +99,7 @@ describe('Static files server', () => {
       });
 
       describe('Non-existent file requests', () => {
-        it('should return 404 for non-existent files', async() => {
+        it('should return 404 for non-existent files', async () => {
           expect.assertions(3);
 
           try {
@@ -113,7 +113,7 @@ describe('Static files server', () => {
       });
 
       describe('Attempt to access files outside public folder', () => {
-        it('should return 400 for traversal paths', async() => {
+        it('should return 400 for traversal paths', async () => {
           expect.assertions(1);
 
           try {
@@ -123,7 +123,7 @@ describe('Static files server', () => {
           }
         });
 
-        it('should return 404 for paths having duplicated slashes', async() => {
+        it('should return 404 for paths having duplicated slashes', async () => {
           expect.assertions(1);
 
           try {
@@ -135,7 +135,7 @@ describe('Static files server', () => {
       });
 
       describe('Other routes', () => {
-        it('should return hint message for routes not starting with /file/', async() => {
+        it('should return hint message for routes not starting with /file/', async () => {
           const response = await axios.get(`${HOST}/file`);
 
           expect(response.status).toBe(200);
