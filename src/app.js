@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
-'use strict';
+"use strict";
 
-const { createServer } = require('./createServer');
+const { createServer } = require("./createServer");
 
-createServer()
-  .listen(5701, () => {
-    console.log(`Server is running on http://localhost:${5701} 🚀`);
-    console.log('Available at http://localhost:5701');
-  });
+createServer().listen(5701, () => {
+  console.log(`Server is running on http://localhost:${5701} 🚀`);
+  console.log("Available at http://localhost:5701");
+});
