@@ -17,16 +17,16 @@ function generateRandomCSS() {
     .${faker.lorem.word()} {
       color: ${faker.internet.color()};
       font-size: ${faker.number.int({
-        min: 12, max: 24,
-      })}px;
+    min: 12, max: 24,
+  })}px;
     }
 
     .${faker.lorem.word()} {
       background-color: ${faker.internet.color()};
       border: 2px solid ${faker.internet.color()};
       padding: ${faker.number.int({
-        min: 5, max: 20,
-      })}px;
+    min: 5, max: 20,
+  })}px;
     }
   `;
 }
