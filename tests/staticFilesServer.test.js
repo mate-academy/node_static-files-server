@@ -6,8 +6,11 @@ const axios = require('axios');
 const path = require('path');
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-const { Server } = require('http');
+const { Server, Agent } = require('http');
 const { createServer } = require('../src/createServer.js');
+
+// this prevents `socket hang up` for Node.js 20.10+
+axios.defaults.httpAgent = new Agent({ keepAlive: false });
 
 const PORT = 5701;
 const HOST = `http://localhost:${PORT}`;
