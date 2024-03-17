@@ -3,6 +3,7 @@
 
 const http = require('http');
 const fs = require('fs');
+const { STATUS_CODES, ERROR } = require('./variables');
 
 function createServer() {
   return http.createServer((req, res) => {
@@ -11,22 +12,22 @@ function createServer() {
     const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
 
     if (!req.url.includes('/file')) {
-      res.statusCode = 400;
-      res.end('Invalid request. Not allowed traversal paths');
+      res.statusCode = STATUS_CODES.BAD_REQUEST;
+      res.end(ERROR.INVALID_REQUEST);
 
       return;
     }
 
     if (!req.url.startsWith('/file/')) {
-      res.statusCode = 200;
-      res.end('Invalid request. Please start your path with "/file/"');
+      res.statusCode = STATUS_CODES.OK;
+      res.end(ERROR.INVALID_REQUEST);
 
       return;
     }
 
     if (req.url.includes('//')) {
-      res.statusCode = 404;
-      res.end('File not found');
+      res.statusCode = STATUS_CODES.NOT_FOUND;
+      res.end(ERROR.NOT_FOUND);
 
       return;
     }
@@ -36,15 +37,15 @@ function createServer() {
 
     fs.readFile(`./public/${filename}`, (err, data) => {
       if (!err) {
-        res.statusCode = 200;
+        res.statusCode = STATUS_CODES.OK;
         res.end(data);
       } else {
         if (err.code === 'ENOENT') {
-          res.statusCode = 404;
-          res.end('File not found');
+          res.statusCode = STATUS_CODES.NOT_FOUND;
+          res.end(ERROR.NOT_FOUND);
         } else {
-          res.statusCode = 404;
-          res.end('Internal Server Error');
+          res.statusCode = STATUS_CODES.NOT_FOUND;
+          res.end(ERROR.SERVER_ERROR);
         }
       }
     });
