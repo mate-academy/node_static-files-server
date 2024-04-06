@@ -6,7 +6,6 @@ const fs = require('fs');
 function createServer() {
   const server = http.createServer((req, res) => {
     const urlPath = req.url;
-    const fileName = urlPath.replace('/file/', '') || 'index.html';
 
     res.setHeader('Content-Type', 'text/plain');
 
@@ -31,10 +30,13 @@ function createServer() {
       return;
     }
 
+    const fileName = urlPath.replace('/file/', '') || 'index.html';
+
     fs.readFile(`./public/${fileName}`, (err, data) => {
       if (!err) {
         res.end(data);
       } else {
+        res.setHeader('Content-Type', 'text/plain');
         res.statusCode = 404;
         res.end('File not found');
       }
