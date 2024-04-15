@@ -9,18 +9,14 @@ function createServer() {
 
     const url = req.url;
 
-    if (!url.startsWith('/file/')) {
-      res.statusCode = 200;
-      res.end('You should provide the path, which starts with /file/');
-
-      return;
+    if (url === '/file') {
+      return res.end('bla');
     }
 
-    if (url.includes('../')) {
+    if (!url.startsWith('/file/')) {
       res.statusCode = 400;
-      res.end('No dots allowed in the path');
 
-      return;
+      return res.end('HINT: routes not starting with "/file/"');
     }
 
     if (url.includes('//')) {
@@ -30,9 +26,9 @@ function createServer() {
       return;
     }
 
-    const fileName = url.replace(/\/*file\/?/, '');
+    const fileName = url.replace('file/', '') || 'index.html';
 
-    fs.readFile(`public/${fileName}`, (err, data) => {
+    fs.readFile(`./public/${fileName}`, (err, data) => {
       if (!err) {
         res.end(data);
 
