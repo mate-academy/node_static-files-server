@@ -37,21 +37,18 @@ function createServer() {
 
     const filePath = pathname.slice(6);
 
-    fs.readFile(
-      `./public/${filePath}`,
-      'utf-8',
-      (err, data) => {
-        if (err) {
-          res.statusCode = 404;
-          res.setHeader('Content-Type', 'text/plain');
+    fs.readFile(`./public/${filePath}`, 'utf-8', (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
 
-          res.end(err.message);
+        res.end(err.message);
 
-          return;
-        }
+        return;
+      }
 
-        res.end(data);
-      });
+      res.end(data);
+    });
   });
 
   return server;
