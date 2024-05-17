@@ -1,41 +1,43 @@
-const path = require('path');
 const url = require('url');
 
 const validateUrl = (req, res) => {
-  const normilizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
-  const pathToFile = normilizedUrl.pathname;
+  res.setHeader('Content-Type', 'text/plain');
 
-  if (req.url.includes('/app.js')) {
-    res.statusCode = 400;
-    res.setHeader('Content-Type', 'text/plain');
-    res.end('there is no such file');
+  const normilizedPath = new url.URL(req.url, `http://${req.headers.host}`)
+    .pathname;
 
-    return;
-  }
-
-  if (pathToFile.includes('//')) {
+  if (normilizedPath.includes('//')) {
     res.statusCode = 404;
-    res.setHeader('Content-Type', 'text/plain');
     res.end('there is no such file');
 
     return;
   }
 
-  let restOfPath = '../public/';
+  if (normilizedPath === '/file/' || normilizedPath === '/file') {
+    res.statusCode = 200;
 
-  if (pathToFile.includes('file')) {
-    const verifiedPath = pathToFile.slice(6);
+    res.end(
+      'Path should start with /file/. Correct path is: "/file/<FILE_NAME>".',
+    );
 
-    restOfPath += verifiedPath;
-
-    if (!verifiedPath.length) {
-      restOfPath += 'index.html';
-    }
+    return;
   }
 
-  const fullPath = path.join(__dirname, restOfPath);
+  if (!normilizedPath.startsWith('/file/')) {
+    res.statusCode = 400;
+    res.end('Request should not contain traversal paths.');
 
-  return fullPath;
+    return;
+  }
+
+  const fileName = getNormalizedPathname(normilizedPath) || 'index.html';
+  const pathToFile = `./public/${fileName}`;
+
+  return pathToFile;
 };
+
+function getNormalizedPathname(pathname) {
+  return pathname.replace('/file', '').slice(1).trim();
+}
 
 module.exports = { validateUrl };
