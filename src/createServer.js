@@ -3,6 +3,7 @@
 const http = require('http');
 const fs = require('fs');
 const { validateUrl } = require('./validateUrl');
+const { statusMessages, statusCodes } = require('./constants');
 
 function createServer() {
   return http.createServer((req, res) => {
@@ -17,13 +18,13 @@ function createServer() {
       res.setHeader('Content-Type', 'text/plain');
 
       if (err) {
-        res.statusCode = 404;
-        res.end('request should starts with "file"');
+        res.statusCode = statusCodes[404];
+        res.end(statusMessages.requestStart);
 
         return;
       }
 
-      res.statusCode = 200;
+      res.statusCode = statusCodes[200];
 
       res.end(data);
     });

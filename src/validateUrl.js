@@ -1,4 +1,5 @@
 const url = require('url');
+const { statusMessages, statusCodes } = require('./constants');
 
 const validateUrl = (req, res) => {
   res.setHeader('Content-Type', 'text/plain');
@@ -7,25 +8,23 @@ const validateUrl = (req, res) => {
     .pathname;
 
   if (normilizedPath.includes('//')) {
-    res.statusCode = 404;
-    res.end('there is no such file');
+    res.statusCode = statusCodes[404];
+    res.end(statusMessages.noFile);
 
     return;
   }
 
   if (normilizedPath === '/file/' || normilizedPath === '/file') {
-    res.statusCode = 200;
+    res.statusCode = statusCodes[200];
 
-    res.end(
-      'Path should start with /file/. Correct path is: "/file/<FILE_NAME>".',
-    );
+    res.end(statusMessages.incorrectPath);
 
     return;
   }
 
   if (!normilizedPath.startsWith('/file/')) {
-    res.statusCode = 400;
-    res.end('Request should not contain traversal paths.');
+    res.statusCode = statusCodes[400];
+    res.end(statusMessages.traversalPath);
 
     return;
   }
