@@ -14,6 +14,7 @@ function createServer() {
 
     res.setHeader('content-type', 'text/plain');
 
+    // eslint-disable-next-line no-unused-vars
     const pathName = new URL(url, `http://${req.headers.host}`).pathname;
 
     // if (pathName.includes(`..`)) {
