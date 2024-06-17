@@ -17,12 +17,12 @@ function createServer() {
     // eslint-disable-next-line no-unused-vars
     const pathName = new URL(url, `http://${req.headers.host}`).pathname;
 
-    // if (pathName.includes(`..`)) {
-    //   res.writeHead(400, {});
-    //   res.end('../ forbidden');
+    if (pathName.includes(`app.js`)) {
+      res.writeHead(400, {});
+      res.end('../ forbidden');
 
-    //   return;
-    // }
+      return;
+    }
 
     if (url.includes('//')) {
       res.statusCode = 404;
