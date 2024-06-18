@@ -23,7 +23,7 @@ function createServer() {
     }
 
     const fileName =
-      normalizedUrl.pathname.replace('/file/', '') || 'index.html';
+      normalizedUrl.pathname.replace('/file', '') || 'index.html';
 
     fs.readFile(`./public/${fileName}`, (err, data) => {
       if (!err) {
