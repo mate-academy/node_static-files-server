@@ -1,22 +1,18 @@
 'use strict';
 
 const http = require('http');
-const url = require('url');
 const fs = require('fs');
 
 function createServer() {
   const server = http.createServer((req, res) => {
     res.setHeader('Content-Type', 'text/plain');
-    res.statusCode = 200;
-    res.statusMessage = 'OK';
 
-    const normalizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
-    const fileName = `public/${normalizedUrl.pathname.slice(6)}`;
+    const normalizedUrl = new URL(req.url || '', `http://${req.headers.host}`);
+    const fileName =
+      normalizedUrl.pathname.replace('/file', '').slice(1) || 'index.html';
 
-    if (
-      normalizedUrl.pathname === '/' ||
-      !normalizedUrl.pathname.startsWith('/file/')
-    ) {
+    if (!normalizedUrl.pathname.startsWith('/file')) {
+      res.statusCode = 400;
       res.end('Please, start your path with <file>');
 
       return;
@@ -29,14 +25,7 @@ function createServer() {
       return;
     }
 
-    if (fileName.includes('..')) {
-      res.statusCode = 400;
-      res.end('Traversal paths are not allowed');
-
-      return;
-    }
-
-    fs.readFile(fileName, 'utf8', (err, data) => {
+    fs.readFile(`./public/${fileName}`, 'utf8', (err, data) => {
       if (!err) {
         res.end(data);
       } else {
