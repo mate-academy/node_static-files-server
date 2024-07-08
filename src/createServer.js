@@ -10,29 +10,17 @@ function createServer() {
     res.statusCode = 200;
     res.statusMessage = 'OK';
 
-    const reqUrl = req.url;
-    const splitedUrl = reqUrl.split('/').filter((e) => e.length > 0);
+    const normalizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
+    const fileName = `public/${normalizedUrl.pathname.slice(6)}`;
 
-    if (splitedUrl.length === 0 || splitedUrl[0] !== 'file') {
-      res.statusCode = 200;
+    if (
+      normalizedUrl.pathname === '/' ||
+      !normalizedUrl.pathname.startsWith('/file/')
+    ) {
       res.end('Please, start your path with <file>');
 
       return;
     }
-
-    if (splitedUrl.length === 1 && splitedUrl[0] === 'file') {
-      fs.readFile('public/index.html', 'utf8', (err, data) => {
-        if (!err) {
-          res.end(data);
-        } else {
-          res.statusCode = 404;
-          res.end('File does not exist');
-        }
-      });
-    }
-
-    const normalizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
-    const fileName = `public/${normalizedUrl.pathname.slice(6)}`;
 
     if (normalizedUrl.pathname.includes('//')) {
       res.statusCode = 404;
@@ -41,16 +29,21 @@ function createServer() {
       return;
     }
 
-    if (fileName) {
-      fs.readFile(fileName, 'utf8', (err, data) => {
-        if (!err) {
-          res.end(data);
-        } else {
-          res.statusCode = 404;
-          res.end('File does not exist');
-        }
-      });
+    if (fileName.includes('..')) {
+      res.statusCode = 400;
+      res.end('Traversal paths are not allowed');
+
+      return;
     }
+
+    fs.readFile(fileName, 'utf8', (err, data) => {
+      if (!err) {
+        res.end(data);
+      } else {
+        res.statusCode = 404;
+        res.end('File does not exist');
+      }
+    });
   });
 
   return server;
