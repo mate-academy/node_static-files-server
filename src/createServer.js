@@ -20,7 +20,7 @@ function createServer() {
       return;
     }
 
-    if (!splitedUrl[1]) {
+    if (splitedUrl.length === 1 && splitedUrl[0] === 'file') {
       fs.readFile('public/index.html', 'utf8', (err, data) => {
         if (!err) {
           res.end(data);
