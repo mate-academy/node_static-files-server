@@ -13,16 +13,32 @@ function createServer() {
     const reqUrl = req.url;
     const splitedUrl = reqUrl.split('/').filter((e) => e.length > 0);
 
-    if (splitedUrl[0] !== 'file') {
+    if (splitedUrl.length === 0 || splitedUrl[0] !== 'file') {
+      res.statusCode = 200;
       res.end('Please, start your path with <file>');
+
+      return;
+    }
+
+    if (!splitedUrl[1]) {
+      fs.readFile('public/index.html', 'utf8', (err, data) => {
+        if (!err) {
+          res.end(data);
+        } else {
+          res.statusCode = 404;
+          res.end('File does not exist');
+        }
+      });
     }
 
     const normalizedUrl = new url.URL(req.url, `http://${req.headers.host}`);
     const fileName = `public/${normalizedUrl.pathname.slice(6)}`;
 
     if (normalizedUrl.pathname.includes('//')) {
-      res.statusCode = 400;
+      res.statusCode = 404;
       res.end('Path having duplicated slashes');
+
+      return;
     }
 
     if (fileName) {
@@ -30,8 +46,8 @@ function createServer() {
         if (!err) {
           res.end(data);
         } else {
-          res.statusCode = 400;
-          res.end('Whong path, file does not exist');
+          res.statusCode = 404;
+          res.end('File does not exist');
         }
       });
     }
