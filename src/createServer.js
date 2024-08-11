@@ -8,23 +8,23 @@ const PUBLIC_FOLDER = './public';
 
 function createServer() {
   const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url, `http://${req.headers.host}/`);
-
-    res.setHeader('Content-Type', 'text/plain');
-
     if (req.url.includes('..')) {
       res.statusCode = 400;
-      res.end();
+      res.end('Bad URL');
 
       return;
     }
 
     if (req.url.includes('//')) {
       res.statusCode = 404;
-      res.end();
+      res.end('Bad path');
 
       return;
     }
+
+    const url = new URL(req.url, `http://${req.headers.host}/`);
+
+    res.setHeader('Content-Type', 'text/plain');
 
     const pathname = url.pathname.slice(1);
 
@@ -43,7 +43,7 @@ function createServer() {
 
     if (!fs.existsSync(filePath)) {
       res.statusCode = 404;
-      res.end();
+      res.end("File doesn't exists");
 
       return;
     }
