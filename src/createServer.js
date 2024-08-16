@@ -83,7 +83,7 @@ function createServer() {
       return;
     }
 
-    const filePath = path.join(__dirname, 'public', slicedPathName);
+    const filePath = path.join(__dirname, '../public', slicedPathName);
 
     fs.readFile(filePath, 'utf-8', (error, data) => {
       if (error) {
