@@ -49,6 +49,8 @@ function createServer() {
           error: 'Path to file should be like this /file/folderName/filename',
         }),
       );
+
+      return;
     }
 
     if (arrayFromPathName.includes('')) {
@@ -61,11 +63,13 @@ function createServer() {
           error: 'Path to file should be like this /file/folderName/filename',
         }),
       );
+
+      return;
     }
 
     const slicedPathName = arrayFromPathName.slice(1).join('/');
 
-    if (fs.existsSync(`./public/${slicedPathName}`)) {
+    if (!fs.existsSync(`./public/${slicedPathName}`)) {
       res.writeHead(404, 'File not found', {
         'Content-Type': 'text/plain',
       });
@@ -75,6 +79,8 @@ function createServer() {
           error: 'Path does not exist',
         }),
       );
+
+      return;
     }
 
     const filePath = path.join(__dirname, 'public', slicedPathName);
@@ -86,7 +92,7 @@ function createServer() {
         });
         res.end(JSON.stringify({ error: 'File not found' }));
       } else {
-        res.writeHead(200, {
+        res.writeHead(200, 'ok', {
           'Content-Type': 'text/plain',
         });
 
