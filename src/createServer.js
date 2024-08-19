@@ -11,6 +11,18 @@ function createServer() {
     const pathName = normalizeUrl.pathname;
     const arrayFromPathName = pathName.slice(1).split('/');
 
+    if (arrayFromPathName.includes('..')) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+
+      res.end(
+        JSON.stringify({
+          error: 'Path to file should be like this /file/folderName/filename',
+        }),
+      );
+    }
+
     if (pathName.includes('//')) {
       res.writeHead(404, {
         'Content-Type': 'text/plain',
