@@ -10,6 +10,7 @@ function createServer() {
     const normalizeUrl = new url.URL(req.url, `http://${req.headers.host}`);
     const pathName = normalizeUrl.pathname;
     const arrayFromPathName = pathName.slice(1).split('/');
+    const slicedPathName = arrayFromPathName.slice(1).join('/');
 
     if (pathName.includes('//')) {
       res.writeHead(404, {
@@ -21,8 +22,8 @@ function createServer() {
       );
     }
 
-    if (arrayFromPathName.includes('..')) {
-      res.writeHead(400, {
+    if (!fs.existsSync(`./public/${slicedPathName}`)) {
+      res.writeHead(404, {
         'Content-Type': 'text/plain',
       });
 
@@ -42,8 +43,6 @@ function createServer() {
         'Path to file should be like this /file/folderName/filename',
       );
     }
-
-    const slicedPathName = arrayFromPathName.slice(1).join('/');
 
     if (!fs.existsSync(`./public/${slicedPathName}`)) {
       res.writeHead(404, 'File not found', {
