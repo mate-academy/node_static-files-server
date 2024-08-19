@@ -23,6 +23,20 @@ function createServer() {
       );
     }
 
+    if (arrayFromPathName.includes('..')) {
+      res.writeHead(400, {
+        'Content-Type': 'text/plain',
+      });
+
+      res.end(
+        JSON.stringify({
+          error: 'Path to file should be like this /file/folderName/filename',
+        }),
+      );
+
+      return;
+    }
+
     if (!pathName.startsWith('/file/')) {
       res.writeHead(200, {
         'Content-Type': 'text/plain',
