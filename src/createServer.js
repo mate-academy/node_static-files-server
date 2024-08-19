@@ -16,7 +16,7 @@ function createServer() {
       return res.end('Valid request');
     }
 
-    if (!path.startsWith('/file')) {
+    if (!path.startsWith('/file/')) {
       res.writeHead(400, 'Content-Type', 'text/plain');
 
       return res.end('The request must start with /file/');
