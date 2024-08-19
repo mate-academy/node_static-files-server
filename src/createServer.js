@@ -11,8 +11,6 @@ function createServer() {
     const pathName = normalizeUrl.pathname;
     const arrayFromPathName = pathName.slice(1).split('/');
 
-    res.end('Path does not exist');
-
     if (pathName.includes('//')) {
       res.writeHead(404, {
         'Content-Type': 'text/plain',
