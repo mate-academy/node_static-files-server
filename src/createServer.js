@@ -21,6 +21,8 @@ function createServer() {
           error: 'Path to file should be like this /file/folderName/filename',
         }),
       );
+
+      return;
     }
 
     if (pathName.includes('//')) {
