@@ -21,7 +21,7 @@ function createServer() {
       );
     }
 
-    if (arrayFromPathName.includes('..')) {
+    if (arrayFromPathName.includes('')) {
       res.writeHead(400, {
         'Content-Type': 'text/plain',
       });
@@ -49,14 +49,6 @@ function createServer() {
       res.writeHead(404, 'Content-Type', 'text/plain');
 
       return res.end('File does not exist');
-    }
-
-    if (!fs.existsSync(`./public/${slicedPathName}`)) {
-      res.writeHead(404, 'File not found', {
-        'Content-Type': 'text/plain',
-      });
-
-      return res.end('Path does not exist');
     }
 
     const filePath = path.join(__dirname, '../public', slicedPathName);
