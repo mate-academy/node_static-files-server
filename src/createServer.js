@@ -11,28 +11,16 @@ function createServer() {
     const pathName = normalizeUrl.pathname;
     const arrayFromPathName = pathName.slice(1).split('/');
 
-    if (arrayFromPathName.includes('..')) {
-      res.writeHead(400, {
-        'Content-Type': 'text/plain',
-      });
-
-      res.end(
-        JSON.stringify({
-          error: 'Path to file should be like this /file/folderName/filename',
-        }),
-      );
-
-      return;
-    }
+    res.end('Path does not exist');
 
     if (pathName.includes('//')) {
       res.writeHead(404, {
         'Content-Type': 'text/plain',
       });
 
-      res.end('Path to file should be like this /file/folderName/filename');
-
-      return;
+      return res.end(
+        'Path to file should be like this /file/folderName/filename',
+      );
     }
 
     if (!pathName.startsWith('/file/')) {
@@ -40,19 +28,9 @@ function createServer() {
         'Content-Type': 'text/plain',
       });
 
-      res.end('Path to file should be like this /file/folderName/filename');
-
-      return;
-    }
-
-    if (arrayFromPathName.includes('')) {
-      res.writeHead(404, 'File not found', {
-        'Content-Type': 'text/plain',
-      });
-
-      res.end('Path to file should be like this /file/folderName/filename');
-
-      return;
+      return res.end(
+        'Path to file should be like this /file/folderName/filename',
+      );
     }
 
     const slicedPathName = arrayFromPathName.slice(1).join('/');
@@ -62,9 +40,7 @@ function createServer() {
         'Content-Type': 'text/plain',
       });
 
-      res.end('Path does not exist');
-
-      return;
+      return res.end('Path does not exist');
     }
 
     const filePath = path.join(__dirname, '../public', slicedPathName);
