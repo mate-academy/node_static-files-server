@@ -26,17 +26,15 @@ function createServer() {
         'Content-Type': 'text/plain',
       });
 
-      res.end(
+      return res.end(
         JSON.stringify({
           error: 'Path to file should be like this /file/folderName/filename',
         }),
       );
-
-      return;
     }
 
     if (!pathName.startsWith('/file/')) {
-      res.writeHead(200, {
+      res.writeHead(404, {
         'Content-Type': 'text/plain',
       });
 
