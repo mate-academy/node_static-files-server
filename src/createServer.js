@@ -1,73 +1,57 @@
 'use strict';
 
-const url = require('url');
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
+const url = require('url');
 
 function createServer() {
-  return http.createServer((req, res) => {
-    const normalizeUrl = new url.URL(req.url, `http://${req.headers.host}`);
-    const pathName = normalizeUrl.pathname;
-    const arrayFromPathName = pathName.slice(1).split('/');
+  /* Write your code here */
+  // Return instance of http.Server class
+  const server = http.createServer((req, res) => {
+    const normUrl = new url.URL(req.url, `http://${req.headers.host}`);
+    const path = normUrl.pathname;
+    const file = path.replace('/file', '') || 'index.html';
 
-    if (pathName.includes('//')) {
-      res.writeHead(404, {
-        'Content-Type': 'text/plain',
-      });
+    if (path.includes('//')) {
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Valid request');
 
-      return res.end(
-        'Path to file should be like this /file/folderName/filename',
-      );
+      return;
     }
 
-    if (arrayFromPathName.includes('')) {
-      res.writeHead(400, {
-        'Content-Type': 'text/plain',
-      });
+    if (!path.startsWith('/file')) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('The request must start with /file/');
 
-      return res.end(
-        JSON.stringify({
-          error: 'Path to file should be like this /file/folderName/filename',
-        }),
-      );
+      return;
     }
 
-    if (!pathName.startsWith('/file/')) {
-      res.writeHead(404, {
-        'Content-Type': 'text/plain',
-      });
+    if (!fs.existsSync(`./public/${file}`)) {
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('File does not exist');
 
-      return res.end(
-        'Path to file should be like this /file/folderName/filename',
-      );
+      return;
     }
 
-    const slicedPathName = arrayFromPathName.slice(1).join('/');
-
-    if (!fs.existsSync(`./public/${slicedPathName}`)) {
-      res.writeHead(404, 'Content-Type', 'text/plain');
-
-      return res.end('File does not exist');
-    }
-
-    const filePath = path.join(__dirname, '../public', slicedPathName);
-
-    fs.readFile(filePath, 'utf-8', (error, data) => {
-      if (error) {
-        res.writeHead(404, 'File not found', {
-          'Content-Type': 'text/plain',
-        });
-        res.end('File not found');
-      } else {
-        res.writeHead(200, 'ok', {
-          'Content-Type': 'text/plain',
-        });
-
+    fs.readFile(`./public/${file}`, (err, data) => {
+      if (!err) {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
         res.end(data);
+
+        return;
       }
+
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Not foud');
     });
   });
+
+  return server;
 }
 
 module.exports = {
