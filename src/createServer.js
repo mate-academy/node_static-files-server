@@ -12,8 +12,6 @@ function createServer() {
         ? new URL(req.url, `http://${req.headers.host}`).pathname
         : '/';
 
-      // const traversalPattern = /\/\.\.\//;
-
       const filePath = urlPath.slice(5);
 
       const publicDir = path.join(__dirname, '../public');
@@ -44,17 +42,6 @@ function createServer() {
 
         return;
       }
-
-      // console.log(res);
-
-      // console.log(traversalPattern.test(urlPath));
-
-      // if (traversalPattern.test(urlPath)) {
-      //   res.writeHead(400, { 'Content-Type': 'text/plain' });
-      //   res.end('Invalid file path.');
-
-      //   return;
-      // }
 
       try {
         const stats = await fs.stat(fullPath);
