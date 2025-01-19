@@ -16,7 +16,7 @@ function createServer() {
 
     const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
 
-    if (!normalizedUrl.pathname.startsWith('/file/')) {
+    if (!normalizedUrl.pathname.startsWith('/file')) {
       res.statusCode = 400;
 
       res.end(
