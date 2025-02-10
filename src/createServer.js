@@ -27,7 +27,7 @@ function createServer() {
     const requestedPath =
       pathname.replace('/file', '').slice(1) || 'index.html';
     const publicPath = path.join(__dirname, '..', 'public');
-    const realPath = path.join(publicPath, requestedPath);
+    const realPath = path.resolve(publicPath, requestedPath);
 
     if (pathname.includes('//')) {
       res.statusCode = 404;
