@@ -2,50 +2,33 @@
 
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
 
 function createServer() {
-  const PUBLIC_DIR = path.join(__dirname, '../public');
-
   return http.createServer((req, res) => {
-    const { url } = req;
+    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
 
-    if (!url.startsWith('/file/')) {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      return res.end('Use /file/{fileName} to access files');
-    }
-
-    let requestedPath = decodeURIComponent(url.replace('/file/', ''));
-    requestedPath = requestedPath.replace(/\/{2,}/g, '/')
-    const normalizedPath = path.normalize(requestedPath);
-
-    if (normalizedPath.includes('..') || path.isAbsolute(normalizedPath)) {
+    if (pathname.includes('//')) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
-      return res.end('Bad Request');
+      return res.end('404 Not Found');
     }
 
-    const filePath = path.join(PUBLIC_DIR, normalizedPath);
-
-    if (!filePath.startsWith(PUBLIC_DIR)) {
+    if (!pathname.startsWith('/file')) {
       res.writeHead(400, { 'Content-Type': 'text/plain' });
-      return res.end('Bad Request');
+      return res.end('To load files, use the path /file/{filename}');
     }
 
-    fs.access(filePath, fs.constants.F_OK, (err) => {
+    const fileName = pathname.startsWith('/file/')
+      ? pathname.replace('/file/', '')
+      : 'index.html';
+
+    fs.readFile(`./public/${fileName}`, (err, data) => {
       if (err) {
         res.writeHead(404, { 'Content-Type': 'text/plain' });
-        return res.end('File not found');
+        return res.end('404 Not Found');
       }
 
-      fs.readFile(filePath, (err, data) => {
-        if (err) {
-          res.writeHead(500, { 'Content-Type': 'text/plain' });
-          return res.end('Internal Server Error');
-        }
-
-        res.writeHead(200);
-        res.end(data);
-      });
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      return res.end(data);
     });
   });
 }
