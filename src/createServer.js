@@ -51,6 +51,17 @@ function createServer() {
       pathname === `${PREFIX}/` ? 'index.html' : pathname.replace(PREFIX, ''),
     );
 
+    // Перевіряємо, чи нормалізований шлях залишається в межах public
+    const publicDir = path.join(__dirname, '..', 'public');
+    const resolvedPath = path.resolve(fileName);
+
+    if (!resolvedPath.startsWith(path.resolve(publicDir))) {
+      res.writeHead(400, 'Bad Request', { 'Content-Type': 'text/plain' });
+      res.end('Traversal paths are not allowed');
+
+      return;
+    }
+
     // Перевіряємо, чи файл існує
     if (!fs.existsSync(fileName)) {
       res.writeHead(404, 'Not Found', { 'Content-Type': 'text/plain' });
