@@ -40,7 +40,10 @@ function createServer() {
     const publicPath = path.join(__dirname, '..', 'public');
     const realPath = path.normalize(path.join(publicPath, requested));
 
-    if (!realPath.startsWith(publicPath + path.sep)) {
+    if (
+      !realPath.startsWith(publicPath + path.sep) ||
+      realPath === publicPath
+    ) {
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/plain');
       res.end('File not found');
