@@ -2,36 +2,37 @@
 
 const http = require('http');
 const fs = require('fs');
-const path = require('path');
 
 function createServer() {
   const server = http.createServer((req, res) => {
     const normalizedURL = new URL(req.url || '', `http://${req.headers.host}`);
-    const normalizedPathName =
-      normalizedURL.pathname.replace('/file', '') || 'index.html';
-
-    const pathToFile = path.join(__dirname, '..', 'public', normalizedPathName);
+    const pathname = normalizedURL.pathname;
 
     res.setHeader('content-type', 'text/plain');
 
-    if (!normalizedURL.pathname.startsWith('/file')) {
+    if (!pathname.startsWith('/file')) {
       res.statusCode = 400;
-
-      res.end(
-        'Invalid request. Use the URL format /file/<FILENAME> to upload files',
-      );
+      res.end('Invalid request. Use the URL format /file/<FILENAME>');
 
       return;
     }
 
-    if (normalizedURL.pathname.includes('//')) {
+    if (pathname.includes('//')) {
       res.statusCode = 404;
       res.end('Error. This path should not have two slashes');
 
       return;
     }
 
-    if (!fs.existsSync(`./public/${normalizedPathName}`)) {
+    let filePath = pathname.slice('/file'.length);
+
+    if (filePath === '' || filePath === '/') {
+      filePath = '/index.html';
+    }
+
+    const fullPath = `./public${filePath}`;
+
+    if (!fs.existsSync(fullPath)) {
       res.statusCode = 404;
       res.end('This file does not exist');
 
@@ -39,10 +40,10 @@ function createServer() {
     }
 
     try {
-      const file = fs.readFileSync(pathToFile, 'utf-8');
+      const fileContent = fs.readFileSync(fullPath);
 
       res.statusCode = 200;
-      res.end(file);
+      res.end(fileContent);
     } catch (err) {
       res.statusCode = 500;
       res.end('Server Error');
