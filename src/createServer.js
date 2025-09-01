@@ -8,18 +8,14 @@ function createServer() {
   const server = http.createServer(async (req, res) => {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const pathname = url.pathname;
-
-    if (!pathname.startsWith('/file')) {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-
-      return res.end('Use /file/<filename> to load files');
-    }
-
+    const publicDir = path.resolve(__dirname, '..', 'public');
     const requestedPath =
       pathname === '/file' || pathname === '/file/'
         ? 'index.html'
         : pathname.replace(/^\/file\/?/, '');
+    const decodedPath = decodeURIComponent(requestedPath);
+    const normalizedPath = path.normalize(decodedPath);
+    const realPath = path.resolve(publicDir, normalizedPath);
 
     if (/\/{2,}/.test(requestedPath)) {
       res.statusCode = 404;
@@ -28,17 +24,18 @@ function createServer() {
       return res.end('Not Found');
     }
 
-    const publicDir = path.resolve(__dirname, '..', 'public');
-    const normalizedPath = path.normalize(requestedPath);
-    const realPath = path.resolve(publicDir, normalizedPath);
-
-    const relative = path.relative(publicDir, realPath);
-
-    if (relative.split(path.sep)[0] === '..') {
+    if (!realPath.startsWith(publicDir + path.sep)) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
 
       return res.end('Bad Request');
+    }
+
+    if (!pathname.startsWith('/file')) {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+
+      return res.end('Use /file/<filename> to load files');
     }
 
     try {
@@ -67,8 +64,6 @@ function getContentType(filePath) {
       return 'application/javascript';
     case '.json':
       return 'application/json';
-    case '.html':
-      return 'text/plain';
     default:
       return 'text/plain';
   }
