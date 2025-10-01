@@ -27,12 +27,14 @@ function createServer() {
       return;
     }
 
-    const rel = reqPath.replace(/^\/file\/?/, '') || 'index.html';
+    const rel = reqPath.replace(/^\/file\/?/, '');
+    const safePath = path.normalize(rel).replace(/^(\.\.[/\\])+/, '');
+    const absPath = path.join(publicDir, safePath);
 
-    const normalized = path.normalize(rel);
-    const absPath = path.resolve(publicDir, normalized);
+    const isInside =
+      absPath.startsWith(publicDir + path.sep) || absPath === publicDir;
 
-    if (absPath !== publicDir && !absPath.startsWith(publicDir + path.sep)) {
+    if (!isInside) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Access denied');
