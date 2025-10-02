@@ -6,7 +6,7 @@ const path = require('path');
 
 function createServer() {
   const server = http.createServer((req, res) => {
-    const publicDir = path.join(__dirname, 'public');
+    const publicDir = path.join(__dirname, '..', 'public');
     const reqPath = decodeURIComponent(
       new URL(req.url, 'http://localhost').pathname,
     );
