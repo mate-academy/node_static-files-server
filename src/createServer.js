@@ -12,9 +12,9 @@ function createServer() {
     );
 
     if (!reqPath.startsWith('/file/') && reqPath !== '/file') {
-      res.statusCode = 200;
+      res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Error! Path to file should start with `/file/`');
+      res.end('Hint: use /file/<filename> to load files');
 
       return;
     }
@@ -27,7 +27,7 @@ function createServer() {
       return;
     }
 
-    const rel = reqPath.replace(/^\/file\/?/, '');
+    const rel = reqPath.replace(/^\/file\/?/, '') || 'index.html';
     const safePath = path.normalize(rel).replace(/^(\.\.[/\\])+/, '');
     const absPath = path.join(publicDir, safePath);
 
@@ -48,6 +48,8 @@ function createServer() {
         res.setHeader('Content-Type', 'text/plain');
         res.end('File not found');
       } else {
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/plain');
         res.end(data);
       }
     });
