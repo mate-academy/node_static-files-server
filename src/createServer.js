@@ -19,10 +19,19 @@ function createServer() {
     const requestUrl = new url.URL(req.url, 'http://localhost');
     const pathname = requestUrl.pathname;
 
-    if (pathname === '/file') {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('The pathname must start with /file/');
+    if (pathname === '/file' || pathname === '/file/') {
+      try {
+        const filePath = path.join(BASE_DIR, 'index.html');
+        const content = await fs.readFile(filePath);
+
+        res.statusCode = 200;
+        res.setHeader('Content-Type', 'text/html');
+        res.end(content);
+      } catch {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end('File not found');
+      }
 
       return;
     }
@@ -49,7 +58,11 @@ function createServer() {
       return;
     }
 
-    const requestedPath = path.join(BASE_DIR, ...parts.slice(1));
+    let requestedPath = path.join(BASE_DIR, ...parts.slice(1));
+
+    if (parts.length === 1) {
+      requestedPath = path.join(BASE_DIR, 'index.html');
+    }
 
     if (!requestedPath.startsWith(BASE_DIR)) {
       res.statusCode = 400;
