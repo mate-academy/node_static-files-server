@@ -1,8 +1,16 @@
 'use strict';
 
+const http = require('http');
+const v = require('./validate');
+
 function createServer() {
-  /* Write your code here */
-  // Return instance of http.Server class
+  return http.createServer((req, res) => {
+    const validated = v.validate(req.url);
+
+    res.statusCode = validated.status;
+    res.setHeader('Content-Type', validated.ct);
+    res.end(validated.data);
+  });
 }
 
 module.exports = {
