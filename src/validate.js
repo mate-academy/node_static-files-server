@@ -42,7 +42,11 @@ function validate(url) {
     };
   }
 
-  const filePath = normalizedUrl.pathname.replace('/file', '') || 'index.html';
+  let filePath = normalizedUrl.pathname.slice('/file/'.length);
+
+  if (!filePath) {
+    filePath = 'index.html';
+  }
 
   const ptf = path.join(__dirname, '../public', filePath);
   const publicDir = path.resolve(__dirname, '../public');
