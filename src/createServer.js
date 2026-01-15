@@ -8,7 +8,7 @@ function createServer() {
     const validated = v.validate(req.url);
 
     res.statusCode = validated.status;
-    res.setHeader('Content-Type', validated.ct);
+    res.setHeader('Content-Type', validated.ct || 'text/plain');
     res.end(validated.data);
   });
 }
