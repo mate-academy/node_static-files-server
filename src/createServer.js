@@ -4,8 +4,17 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs/promises');
 
+const PUBLIC_ROOT = path.resolve(__dirname, '..', 'public');
+
 function createServer() {
   return http.createServer(async (req, res) => {
+    if (req.url.includes('..')) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+
+      return res.end('Bad request');
+    }
+
     const url = new URL(req.url || '', `http://${req.headers.host}`);
     const { pathname } = url;
 
@@ -31,19 +40,17 @@ function createServer() {
       relativePath = 'index.html';
     }
 
-    const publicDir = path.join(__dirname, '..', 'public');
-    const safePath = path.join(publicDir, relativePath);
+    const fullFilePath = path.resolve(PUBLIC_ROOT, `.${relativePath}`);
 
-    if (!safePath.startsWith(publicDir)) {
+    if (!fullFilePath.startsWith(PUBLIC_ROOT)) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Bad request');
 
-      return;
+      return res.end('Bad request');
     }
 
     try {
-      const content = await fs.readFile(safePath);
+      const content = await fs.readFile(fullFilePath);
 
       res.statusCode = 200;
       res.end(content);
