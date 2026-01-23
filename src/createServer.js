@@ -4,10 +4,16 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs/promises');
 
-const PUBLIC_ROOT = path.resolve(__dirname, '..', 'public');
-
 function createServer() {
   return http.createServer(async (req, res) => {
+    if (req.url.includes('//')) {
+      res.statusCode = 404;
+      res.setHeader('Content-type', 'text/plain');
+      res.end('File not found');
+
+      return;
+    }
+
     if (req.url.includes('..')) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
@@ -15,16 +21,8 @@ function createServer() {
       return res.end('Bad request');
     }
 
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
+    const url = new URL(req.url || '/', `http://${req.headers.host}`);
     const { pathname } = url;
-
-    if (pathname.includes('//')) {
-      res.statusCode = 404;
-      res.setHeader('Content-type', 'text/plain');
-      res.end('File not found');
-
-      return;
-    }
 
     if (!pathname.startsWith('/file/')) {
       res.statusCode = 200;
@@ -34,15 +32,11 @@ function createServer() {
       return;
     }
 
-    let relativePath = pathname.replace('/file', '');
+    const filePath = pathname.replace('/file', '') || 'index.html';
+    const finalPath = path.join(__dirname, '../public', filePath);
+    const publicDir = path.resolve(__dirname, '../public');
 
-    if (relativePath === '/' || relativePath === '') {
-      relativePath = 'index.html';
-    }
-
-    const fullFilePath = path.resolve(PUBLIC_ROOT, `.${relativePath}`);
-
-    if (!fullFilePath.startsWith(PUBLIC_ROOT)) {
+    if (!finalPath.startsWith(publicDir)) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
 
@@ -50,7 +44,7 @@ function createServer() {
     }
 
     try {
-      const content = await fs.readFile(fullFilePath);
+      const content = await fs.readFile(finalPath);
 
       res.statusCode = 200;
       res.end(content);
@@ -59,7 +53,6 @@ function createServer() {
       res.setHeader('Content-type', 'text/plain');
       res.end('File not found');
     }
-    // Return instance of http.Server class
   });
 }
 
