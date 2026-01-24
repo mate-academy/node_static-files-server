@@ -32,7 +32,8 @@ function createServer() {
       return;
     }
 
-    const filePath = pathname.replace('/file', '') || 'index.html';
+    const relativePath = pathname.replace(/^\/file\/?/, '');
+    const filePath = relativePath || 'index.html';
     const finalPath = path.join(__dirname, '../public', filePath);
     const publicDir = path.resolve(__dirname, '../public');
 
