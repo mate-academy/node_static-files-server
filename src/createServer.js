@@ -14,18 +14,18 @@ function createServer() {
       return;
     }
 
-    if (req.url.includes('..')) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
+    // if (req.url.includes('..')) {
+    //   res.statusCode = 400;
+    //   res.setHeader('Content-Type', 'text/plain');
 
-      return res.end('Bad request');
-    }
+    //   return res.end('Bad request');
+    // }
 
     const url = new URL(req.url || '/', `http://${req.headers.host}`);
     const { pathname } = url;
 
-    if (!pathname.startsWith('/file/')) {
-      res.statusCode = 200;
+    if (!pathname.startsWith('/file')) {
+      res.statusCode = 400;
       res.setHeader('Content-type', 'text/plain');
       res.end('Use /file/pathToFile to load the file');
 
@@ -47,6 +47,7 @@ function createServer() {
       const content = await fs.readFile(finalPath);
 
       res.statusCode = 200;
+      res.setHeader('Content-type', 'text/plain');
       res.end(content);
     } catch (err) {
       res.statusCode = 404;
