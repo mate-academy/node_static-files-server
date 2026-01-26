@@ -33,6 +33,16 @@ function createServer() {
     const rawUrl = req.url || '';
     const rawPath = rawUrl.split('?')[0];
 
+    if (rawPath === '/file') {
+      send(
+        res,
+        200,
+        'Use /file/<path> to load static files from public folder',
+      );
+
+      return;
+    }
+
     if (!rawPath.startsWith('/file/')) {
       const ext = path.extname(rawPath).toLowerCase();
 
