@@ -33,17 +33,11 @@ function createServer() {
     const rawUrl = req.url || '';
     const rawPath = rawUrl.split('?')[0];
 
+    let forcePlain = false;
+
     if (rawPath === '/file') {
-      send(
-        res,
-        200,
-        'Use /file/<path> to load static files from public folder',
-      );
-
-      return;
-    }
-
-    if (!rawPath.startsWith('/file/')) {
+      forcePlain = true;
+    } else if (!rawPath.startsWith('/file/')) {
       const ext = path.extname(rawPath).toLowerCase();
 
       if (FILELIKE_EXTS.has(ext)) {
@@ -61,7 +55,7 @@ function createServer() {
       return;
     }
 
-    const relRaw = rawPath.slice('/file/'.length);
+    const relRaw = rawPath === '/file' ? '' : rawPath.slice('/file/'.length);
 
     if (relRaw.includes('//')) {
       send(res, 404, 'Not Found');
@@ -96,7 +90,9 @@ function createServer() {
       }
 
       const ext = path.extname(filePath).toLowerCase();
-      const contentType = MIME_TYPES[ext] || 'application/octet-stream';
+      const contentType = forcePlain
+        ? 'text/plain'
+        : MIME_TYPES[ext] || 'application/octet-stream';
 
       res.statusCode = 200;
       res.setHeader('Content-Type', contentType);
