@@ -5,16 +5,21 @@ const path = require('path');
 const fs = require('fs');
 
 function createServer() {
+  const publicDir = path.resolve(__dirname, '..', 'public');
+
   const server = http.createServer((req, res) => {
     const { pathname } = new URL(req.url, `http://${req.headers.host}`);
-    const normalizedPathWay = pathname.replace('/file', '') || 'index.html';
-    const pathToFile = path.join(__dirname, '..', 'public', normalizedPathWay);
 
     res.setHeader('content-type', 'text/plain');
 
-    if (!pathname.startsWith('/file')) {
+    const isValidRoute =
+      pathname === '/file' ||
+      pathname === '/file/' ||
+      pathname.startsWith('/file/');
+
+    if (!isValidRoute) {
       res.statusCode = 400;
-      res.end('Routes not starting with /file/');
+      res.end('Use /file/<path> to load files');
 
       return;
     }
@@ -26,15 +31,48 @@ function createServer() {
       return;
     }
 
-    fs.readFile(pathToFile, 'utf-8', (err, file) => {
+    let subPath = pathname.replace(/^\/file(?=\/|$)/, '');
+
+    if (subPath === '' || subPath === '/') {
+      subPath = '/index.html';
+    }
+
+    subPath = subPath.replace(/^\/+/, '');
+
+    const resolvedPath = path.resolve(publicDir, subPath);
+
+    if (!resolvedPath.startsWith(publicDir)) {
+      res.statusCode = 404;
+      res.end('Non-existent files');
+
+      return;
+    }
+
+    fs.stat(resolvedPath, (err, stats) => {
       if (err) {
         res.statusCode = 404;
         res.end('Non-existent files');
 
         return;
       }
-      res.statusCode = 200;
-      res.end(file);
+
+      let filePath = resolvedPath;
+
+      if (stats.isDirectory()) {
+        filePath = path.join(publicDir, 'index.html');
+      }
+
+      fs.readFile(filePath, (readErr, file) => {
+        if (readErr) {
+          res.statusCode = 404;
+          res.end('Non-existent files');
+
+          return;
+        }
+
+        res.statusCode = 200;
+        res.end(file);
+      });
     });
   });
 
