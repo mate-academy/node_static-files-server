@@ -1,82 +1,47 @@
 'use strict';
 
 const http = require('http');
-const path = require('path');
 const fs = require('fs');
 
 function createServer() {
-  const publicDir = path.resolve(__dirname, '..', 'public');
-
-  const server = http.createServer((req, res) => {
-    const { pathname } = new URL(req.url, `http://${req.headers.host}`);
-
-    res.setHeader('content-type', 'text/plain');
-
-    const isValidRoute =
-      pathname === '/file' ||
-      pathname === '/file/' ||
-      pathname.startsWith('/file/');
-
-    if (!isValidRoute) {
-      res.statusCode = 400;
-      res.end('Use /file/<path> to load files');
-
-      return;
-    }
+  return http.createServer((req, res) => {
+    const normalizedUrl = new URL(req.url, `http://${req.headers.host}`);
+    const { pathname } = normalizedUrl;
 
     if (pathname.includes('//')) {
-      res.statusCode = 404;
-      res.end('Paths having duplicated slashes');
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('File Not Found');
 
       return;
     }
 
-    let subPath = pathname.replace(/^\/file(?=\/|$)/, '');
-
-    if (subPath === '' || subPath === '/') {
-      subPath = '/index.html';
-    }
-
-    subPath = subPath.replace(/^\/+/, '');
-
-    const resolvedPath = path.resolve(publicDir, subPath);
-
-    if (!resolvedPath.startsWith(publicDir)) {
-      res.statusCode = 404;
-      res.end('Non-existent files');
+    if (!pathname.startsWith('/file')) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end('Should be /file/*');
 
       return;
     }
 
-    fs.stat(resolvedPath, (err, stats) => {
+    const relativeFilePath = pathname.replace(/^\/file\/?/, '');
+
+    if (!relativeFilePath) {
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end('File Not Found');
+
+      return;
+    }
+
+    fs.readFile(`public/${relativeFilePath}`, (err, data) => {
       if (err) {
-        res.statusCode = 404;
-        res.end('Non-existent files');
+        res.writeHead(404, { 'Content-Type': 'text/plain' });
+        res.end('File Not Found');
 
         return;
       }
-
-      let filePath = resolvedPath;
-
-      if (stats.isDirectory()) {
-        filePath = path.join(publicDir, 'index.html');
-      }
-
-      fs.readFile(filePath, (readErr, file) => {
-        if (readErr) {
-          res.statusCode = 404;
-          res.end('Non-existent files');
-
-          return;
-        }
-
-        res.statusCode = 200;
-        res.end(file);
-      });
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(data);
     });
   });
-
-  return server;
 }
 
 module.exports = {
