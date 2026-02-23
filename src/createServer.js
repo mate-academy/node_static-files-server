@@ -18,17 +18,10 @@ const createServer = () => {
       return;
     }
 
-    if (url.pathname.includes('//')) {
-      res.statusCode = 404;
-      res.end('Not Found');
-
-      return;
-    }
-
     const requestedPath =
       url.pathname.replace(/^\/file\/?/, '') || 'index.html';
 
-    const realPath = path.join(__dirname, '..', 'public', requestedPath);
+    const realPath = path.resolve('public', requestedPath);
 
     try {
       const file = await fsp.readFile(realPath, 'utf-8');
