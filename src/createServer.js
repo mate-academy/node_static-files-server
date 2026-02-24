@@ -7,7 +7,8 @@ const fsp = require('fs/promises');
 const createServer = () => {
   return http.createServer(async (req, res) => {
     const url = new URL(req.url || '', `http://${req.headers.host}`);
-    const isValidURL = /^\/file/.test(url.pathname);
+    const regexPattern = /^\/file(?:\/|$)/;
+    const isValidURL = regexPattern.test(url.pathname);
 
     res.setHeader('Content-Type', 'text/plain');
 
@@ -19,9 +20,15 @@ const createServer = () => {
     }
 
     const requestedPath =
-      url.pathname.replace(/^\/file\/?/, '') || 'index.html';
+      url.pathname.replace(regexPattern, '') || 'index.html';
 
-    const realPath = path.resolve('public', requestedPath);
+    const publicDir = path.resolve('public');
+    const realPath = path.resolve(publicDir, requestedPath);
+
+    if (path.relative(publicDir, realPath).slice(0, 2) === '..') {
+      res.statusCode = 404;
+      res.end('Not Found');
+    }
 
     try {
       const file = await fsp.readFile(realPath, 'utf-8');
