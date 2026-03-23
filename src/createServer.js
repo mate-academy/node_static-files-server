@@ -30,7 +30,11 @@ function createServer() {
       return;
     }
 
-    const relativePath = filePath.slice('/file/'.length);
+    let relativePath = filePath.slice('/file/'.length);
+
+    if (relativePath === '') {
+      relativePath = 'index.html';
+    }
 
     if (relativePath.includes('//')) {
       res.statusCode = 404;
