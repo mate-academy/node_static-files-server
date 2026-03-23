@@ -13,9 +13,8 @@ function createServer() {
     const publicDir = path.resolve(__dirname, '../public');
     const normilizedURL = new url.URL(req.url, `http://${req.headers.host}`);
     const filePath = normilizedURL.pathname;
-    const format = filePath.split('.')[1];
 
-    if (req.url === '/app.js') {
+    if (req.url === '/app.js' || req.url.includes('/file/..')) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Bad request');
@@ -23,15 +22,7 @@ function createServer() {
       return;
     }
 
-    if (req.url.includes('/file/..')) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Bad request');
-
-      return;
-    }
-
-    if (!filePath.startsWith('/file/')) {
+    if (filePath === '/file' || !filePath.startsWith('/file/')) {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain');
       res.end('Use /file/<path-to-file> to load files from public folder');
@@ -58,8 +49,11 @@ function createServer() {
         return;
       }
 
+      const extension = path.extname(relativePath);
+      const contentType = extension === '.css' ? 'text/css' : 'text/html';
+
       res.statusCode = 200;
-      res.setHeader('Content-Type', `text/${format}`);
+      res.setHeader('Content-Type', contentType);
       res.end(data);
     });
   });
