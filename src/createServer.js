@@ -4,45 +4,77 @@ const fs = require('fs');
 const path = require('path');
 const http = require('http');
 
+const TEXT_PLAIN = 'text/plain';
+
+function sendText(res, statusCode, body) {
+  res.writeHead(statusCode, { 'Content-Type': TEXT_PLAIN });
+  res.end(body);
+}
+
+function sendInvalidFilePath(res) {
+  sendText(res, 400, 'Invalid file path');
+}
+
+function sendFileNotFound(res) {
+  sendText(res, 404, 'File not found');
+}
+
+function readTextFile(res, filePath) {
+  fs.readFile(filePath, (error, data) => {
+    if (error) {
+      sendFileNotFound(res);
+
+      return;
+    }
+
+    sendText(res, 200, data);
+  });
+}
+
+function decodePathname(requestPath) {
+  try {
+    return decodeURIComponent(requestPath);
+  } catch (error) {
+    return null;
+  }
+}
+
 function createServer() {
   const publicFolderPath = path.resolve(__dirname, '../public');
 
   const server = http.createServer((req, res) => {
     const rawUrl = req.url || '';
-
-    // pathname without the query string
+    // Remove query parameters
     const requestPath = rawUrl.split('?')[0];
+    // handle URL-encoded characters
+    const decodedPathname = decodePathname(requestPath);
 
-    let decodedPathname = requestPath;
-
-    try {
-      // decode the pathname, so we can handle special characters
-      decodedPathname = decodeURIComponent(requestPath);
-    } catch (error) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file path');
+    if (!decodedPathname) {
+      sendInvalidFilePath(res);
 
       return;
     }
 
-    // check if the pathname contains '..' to prevent traversal
     if (rawUrl.includes('..') || decodedPathname.includes('..')) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file path');
+      sendInvalidFilePath(res);
+
+      return;
+    }
+
+    if (decodedPathname === '/file' || decodedPathname === '/file/') {
+      readTextFile(res, path.resolve(publicFolderPath, 'index.html'));
 
       return;
     }
 
     if (!decodedPathname.startsWith('/file/')) {
       if (path.extname(decodedPathname)) {
-        res.writeHead(400, { 'Content-Type': 'text/plain' });
-        res.end('Invalid file path');
+        sendInvalidFilePath(res);
 
         return;
       }
 
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Invalid path. To load files, use: /file/filename');
+      sendText(res, 200, 'Invalid path. To load files, use: /file/filename');
 
       return;
     }
@@ -51,15 +83,13 @@ function createServer() {
     const pathSegments = requestedFile.split('/');
 
     if (pathSegments.includes('..')) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file path');
+      sendInvalidFilePath(res);
 
       return;
     }
 
     if (pathSegments.some((segment) => segment.length === 0)) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('File not found');
+      sendFileNotFound(res);
 
       return;
     }
@@ -67,22 +97,12 @@ function createServer() {
     const filePath = path.resolve(publicFolderPath, requestedFile);
 
     if (!filePath.startsWith(`${publicFolderPath}${path.sep}`)) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Invalid file path');
+      sendInvalidFilePath(res);
 
       return;
     }
 
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('File not found');
-
-        return;
-      }
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end(data);
-    });
+    readTextFile(res, filePath);
   });
 
   return server;
