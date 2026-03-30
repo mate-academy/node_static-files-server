@@ -7,6 +7,8 @@ const fsp = require('fs/promises');
 
 function createServer() {
   const server = http.createServer(async (req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+
     if (req.url.includes('//')) {
       res.statusCode = 404;
       res.end('Not Found');
@@ -17,12 +19,11 @@ function createServer() {
     const pathname = req.url.slice(1);
 
     const [action, ...rest] = pathname.split('/');
-    const fileName = rest.join('/');
+    const fileName = rest.join('/') || 'index.html';
 
     if (action !== 'file') {
       res.statusCode = 400;
 
-      res.setHeader('Content-Type', 'text/plain');
       res.end('To load file, you need use "/file/fileName"');
 
       return;
@@ -30,7 +31,7 @@ function createServer() {
 
     if (!fileName) {
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
+
       res.end('Enter the correct path');
 
       return;
@@ -42,11 +43,10 @@ function createServer() {
       const file = await fsp.readFile(realPath, 'utf-8');
 
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/html');
       res.end(file);
     } catch (error) {
       res.statusCode = 404;
-      res.setHeader('Content-Type', 'text/plain');
+
       res.end('Not Found');
     }
   });
