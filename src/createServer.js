@@ -4,6 +4,24 @@ const http = require('http');
 const path = require('path');
 const fs = require('fs');
 
+const MIME_TYPES = {
+  '.html': 'text/html',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.svg': 'image/svg+xml',
+  '.txt': 'text/plain',
+};
+
+function getMimeType(filePath) {
+  const ext = path.extname(filePath).toLowerCase();
+
+  return MIME_TYPES[ext] || 'application/octet-stream';
+}
+
 function createServer() {
   return http.createServer((req, res) => {
     const url = new URL(req.url, `http://${req.headers.host}`);
@@ -35,8 +53,9 @@ function createServer() {
 
     try {
       const data = fs.readFileSync(fullPath);
+      const contentType = getMimeType(fullPath);
 
-      res.writeHead(200, { 'Content-Type': 'text/html' });
+      res.writeHead(200, { 'Content-Type': contentType });
       res.end(data);
     } catch (err) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
