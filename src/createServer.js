@@ -6,19 +6,21 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const mimeTypes = {
-  '.html': 'text/html; charset=utf-8',
-  '.htm': 'text/html; charset=utf-8',
-  '.css': 'text/css; charset=utf-8',
-  '.js': 'application/javascript; charset=utf-8',
-  '.json': 'application/json; charset=utf-8',
+  '.html': 'text/html',
+  '.htm': 'text/html',
+  '.css': 'text/css',
+  '.js': 'application/javascript',
+  '.json': 'application/json',
   '.png': 'image/png',
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.gif': 'image/gif',
   '.svg': 'image/svg+xml',
   '.ico': 'image/x-icon',
-  '.txt': 'text/plain; charset=utf-8',
+  '.txt': 'text/plain',
 };
+
+// ; charset=utf-8
 
 function getContentType(filePath) {
   const ext = path.extname(filePath).toLowerCase();
@@ -26,7 +28,7 @@ function getContentType(filePath) {
   return mimeTypes[ext] || 'application/octet-stream';
 }
 
-function readFile(pathToFile, res, contentType) {
+function readFile(pathToFile, res, contentType = 'text/plain') {
   fs.readFile(pathToFile, (error, data) => {
     if (error) {
       if (error.code === 'ENOENT') {
@@ -59,19 +61,12 @@ function createServer() {
       return;
     }
 
-    // const decodedPath = decodeURIComponent(pathname);
+    const decodedPath = decodeURIComponent(pathname);
 
-    // if (decodedPath.includes('..')) {
-    //   res.statusCode = 400;
-    //   res.setHeader('Content-Type', 'text/plain');
-    //   res.end('Not Found');
-
-    //   return;
-    // }
-    if (req.url.includes('..')) {
+    if (decodedPath.includes('..')) {
       res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
-      res.end(); // или просто res.end() 'Bad Request'
+      res.end('Not Found');
 
       return;
     }
@@ -79,15 +74,18 @@ function createServer() {
     if (pathname.includes('//')) {
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Not Found');
+      res.end('Bad Request');
 
       return;
     }
 
     if (pathname === '/file' || pathname === '/file/') {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('To upload a file, use the path /file/<file_name>');
+      const pathTopublicDir = path.normalize(
+        path.join(__dirname, '..', 'public') + path.sep,
+      );
+      const newPath = path.join(pathTopublicDir, 'index.html');
+
+      readFile(newPath, res, 'text/plain');
 
       return;
     }
