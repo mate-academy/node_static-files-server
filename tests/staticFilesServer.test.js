@@ -138,11 +138,11 @@ describe('Static files server', () => {
       });
 
       describe('Other routes', () => {
-        it('should return hint message for routes not starting with /file/', async() => {
+        it('should return public/index.html for `/file/` and `/file`', async() => {
           const response = await axios.get(`${HOST}/file`);
 
           expect(response.status).toBe(200);
-          expect(response.headers['content-type']).toBe('text/plain');
+          expect(response.headers['content-type']).toBe('text/html');
           expect(response.data.length).toBeGreaterThan(0);
         });
       });
