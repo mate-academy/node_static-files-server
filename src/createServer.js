@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const http = require('http');
+const path = require('path');
 
 function contentType(url) {
   const MIME_TYPES = {
@@ -30,7 +31,7 @@ function createServer() {
   // Return instance of http.Server class
   const server = http.createServer((req, res) => {
     const myUrl = new URL(req.url, `http://${req.headers.host}`);
-    const myPathName = myUrl.pathname || 'index.html';
+    const myPathName = myUrl.pathname;
 
     if (myPathName === '/file') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
@@ -46,28 +47,28 @@ function createServer() {
       return;
     }
 
-    if (myPathName.includes('//')) {
+    const relativePath =
+      myUrl.pathname.replace(/^\/file\/?/, '') || 'index.html';
+    const publicDir = path.resolve(__dirname, '..', 'public');
+    const fullPath = path.resolve(publicDir, relativePath);
+
+    if (!fullPath.startsWith(publicDir + path.sep) && fullPath !== publicDir) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
       res.end('Not Found');
 
       return;
     }
 
-    const cleanPartName = myPathName
-      .replace(/\.\.\//g, '')
-      .replace(/file/g, '');
+    try {
+      const data = fs.readFileSync(fullPath);
+      const contentTypes = contentType(fullPath);
 
-    fs.readFile(`./public/${cleanPartName}`, (err, data) => {
-      if (!err) {
-        res.writeHead(200, {
-          'Content-Type': `${contentType(cleanPartName)}`,
-        });
-        res.end(data);
-      } else {
-        res.writeHead(404, { 'Content-Type': 'text/plain' });
-        res.end('Not Found');
-      }
-    });
+      res.writeHead(200, { 'Content-Type': contentTypes });
+      res.end(data);
+    } catch (err) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('Not Found');
+    }
   });
 
   return server;
