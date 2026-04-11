@@ -7,16 +7,15 @@ const path = require('path');
 function createServer() {
   const server = http.createServer((req, res) => {
     const rawUrl = req.url;
+    const urlPath = rawUrl.split('?')[0];
 
-    if (rawUrl.includes('//')) {
+    if (urlPath.includes('//')) {
       res.statusCode = 404;
       res.setHeader('content-type', 'text/plain');
       res.end('Not found');
 
       return;
     }
-
-    const urlPath = rawUrl.split('?')[0];
 
     if (urlPath.startsWith('/file/')) {
       const relativeRaw = urlPath.slice('/file/'.length);
@@ -27,9 +26,16 @@ function createServer() {
         relative = decodeURIComponent(relativeRaw);
       } catch {
         res.statusCode = 400;
+        res.setHeader('content-type', 'text/plain');
         res.end('Bad request');
 
         return;
+      }
+
+      if (relative === '') {
+        relative = 'index.html';
+      } else if (relative.endsWith('/')) {
+        relative = `${relative}index.html`;
       }
 
       const publicDir = path.resolve(__dirname, '../public');
@@ -55,6 +61,15 @@ function createServer() {
         }
 
         res.statusCode = 200;
+
+        const extension = path.extname(filePath);
+
+        if (extension === '.html') {
+          res.setHeader('content-type', 'text/html');
+        } else if (extension === '.css') {
+          res.setHeader('content-type', 'text/css');
+        }
+
         res.end(data);
       });
 
@@ -62,6 +77,14 @@ function createServer() {
     }
 
     if (urlPath !== '/file') {
+      res.statusCode = 400;
+      res.setHeader('content-type', 'text/plain');
+      res.end('Bad request');
+
+      return;
+    }
+
+    if (path.extname(urlPath)) {
       res.statusCode = 400;
       res.setHeader('content-type', 'text/plain');
       res.end('Bad request');
