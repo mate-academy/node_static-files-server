@@ -1,74 +1,92 @@
 'use strict';
 
-const fs = require('fs');
 const http = require('http');
+const fs = require('fs');
 const path = require('path');
 
-function contentType(url) {
-  const MIME_TYPES = {
-    '.html': 'text/html',
-    '.css': 'text/css',
-    '.js': 'application/javascript',
-    '.json': 'application/json',
-    '.png': 'image/png',
-    '.jpg': 'image/jpeg',
-    '.jpeg': 'image/jpeg',
-    '.svg': 'image/svg+xml',
-    '.txt': 'text/plain',
-  };
-
-  for (const [key, value] of Object.entries(MIME_TYPES)) {
-    if (url.endsWith(key)) {
-      return value;
-    }
-  }
-
-  return 'application/octet-stream';
-}
-
 function createServer() {
-  /* Write your code here */
-  // Return instance of http.Server class
   const server = http.createServer((req, res) => {
-    const myUrl = new URL(req.url, `http://${req.headers.host}`);
-    const myPathName = myUrl.pathname;
+    const rawUrl = req.url;
+    const urlPath = rawUrl.split('?')[0];
 
-    if (myPathName === '/file') {
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('Please specify a file path after /file/.');
-
-      return;
-    }
-
-    if (!myPathName.startsWith('/file/')) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' });
-      res.end('Use /file/<path> to load files');
+    if (urlPath.includes('//')) {
+      res.statusCode = 404;
+      res.setHeader('content-type', 'text/plain');
+      res.end('Not found');
 
       return;
     }
 
-    const relativePath =
-      myUrl.pathname.replace(/^\/file\/?/, '') || 'index.html';
-    const publicDir = path.resolve(__dirname, '..', 'public');
-    const fullPath = path.resolve(publicDir, relativePath);
+    if (urlPath.startsWith('/file/')) {
+      const relativeRaw = urlPath.slice('/file/'.length);
 
-    if (!fullPath.startsWith(publicDir + path.sep) && fullPath !== publicDir) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found');
+      let relative;
+
+      try {
+        relative = decodeURIComponent(relativeRaw);
+      } catch {
+        res.statusCode = 400;
+        res.setHeader('content-type', 'text/plain');
+        res.end('Bad request');
+
+        return;
+      }
+
+      if (relative === '') {
+        relative = 'index.html';
+      } else if (relative.endsWith('/')) {
+        relative = `${relative}index.html`;
+      }
+
+      const publicDir = path.resolve(__dirname, '../public');
+      const filePath = path.resolve(publicDir, relative);
+
+      const relativePath = path.relative(publicDir, filePath);
+
+      if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+        res.statusCode = 400;
+        res.setHeader('content-type', 'text/plain');
+        res.end('Bad request');
+
+        return;
+      }
+
+      fs.readFile(filePath, (err, data) => {
+        if (err) {
+          res.statusCode = 404;
+          res.setHeader('content-type', 'text/plain');
+          res.end('Not found');
+
+          return;
+        }
+
+        res.statusCode = 200;
+
+        const extension = path.extname(filePath);
+
+        if (extension === '.html') {
+          res.setHeader('content-type', 'text/html');
+        } else if (extension === '.css') {
+          res.setHeader('content-type', 'text/css');
+        }
+
+        res.end(data);
+      });
 
       return;
     }
 
-    try {
-      const data = fs.readFileSync(fullPath);
-      const contentTypes = contentType(fullPath);
+    if (urlPath !== '/file') {
+      res.statusCode = 400;
+      res.setHeader('content-type', 'text/plain');
+      res.end('Bad request');
 
-      res.writeHead(200, { 'Content-Type': contentTypes });
-      res.end(data);
-    } catch (err) {
-      res.writeHead(404, { 'Content-Type': 'text/plain' });
-      res.end('Not Found');
+      return;
     }
+
+    res.statusCode = 200;
+    res.setHeader('content-type', 'text/plain');
+    res.end('Use /file/<filename> to serve a file from the public folder');
   });
 
   return server;
