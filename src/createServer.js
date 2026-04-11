@@ -76,22 +76,6 @@ function createServer() {
       return;
     }
 
-    if (urlPath !== '/file') {
-      res.statusCode = 400;
-      res.setHeader('content-type', 'text/plain');
-      res.end('Bad request');
-
-      return;
-    }
-
-    if (path.extname(urlPath)) {
-      res.statusCode = 400;
-      res.setHeader('content-type', 'text/plain');
-      res.end('Bad request');
-
-      return;
-    }
-
     res.statusCode = 200;
     res.setHeader('content-type', 'text/plain');
     res.end('Use /file/<filename> to serve a file from the public folder');
