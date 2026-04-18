@@ -44,9 +44,11 @@ function createServer() {
       return;
     }
 
-    const filePath = path.join('public', pathname.replace('/file/', ''));
+    const requestedPath = pathname.replace('/file/', '') || 'index.html';
+    const publicRoot = path.resolve('public');
+    const filePath = path.resolve('public', requestedPath);
 
-    if (!filePath.startsWith('public')) {
+    if (!filePath.startsWith(publicRoot + path.sep)) {
       res.writeHead(400, 'Bad Request', {
         'Content-Type': CONTENT_TYPES.errors,
       });
@@ -66,7 +68,7 @@ function createServer() {
       }
 
       res.writeHead(200, 'OK', {
-        'Content-Type': CONTENT_TYPES[existent],
+        'Content-Type': CONTENT_TYPES[existent] || 'text/plain',
       });
       res.end(data);
     });
