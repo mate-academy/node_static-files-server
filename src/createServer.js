@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 'use strict';
 
 const fs = require('fs');
@@ -25,15 +26,6 @@ function createServer() {
       return;
     }
 
-    if (pathname.includes('../')) {
-      res.writeHead(400, 'Bad Request', {
-        'Content-Type': CONTENT_TYPES.errors,
-      });
-      res.end('Attempt to access files outside public folder');
-
-      return;
-    }
-
     if (pathname.includes('//')) {
       res.writeHead(404, 'Bad Request', {
         'Content-Type': CONTENT_TYPES.errors,
@@ -52,7 +44,16 @@ function createServer() {
       return;
     }
 
-    const filePath = path.join('public', pathname.slice('/file/'.length));
+    const filePath = path.join('public', pathname.replace('/file/', ''));
+
+    if (!filePath.startsWith('public')) {
+      res.writeHead(400, 'Bad Request', {
+        'Content-Type': CONTENT_TYPES.errors,
+      });
+      res.end('Attempt to access files outside public folder');
+
+      return;
+    }
 
     fs.readFile(filePath, (err, data) => {
       const existent = path.extname(filePath);
