@@ -9,7 +9,15 @@ function createServer() {
     const protectedUrl = new URL(req.url, `http://${req.headers.host}`);
     const url = protectedUrl.pathname;
 
-    if (url === '/file' || url === '/file/') {
+    if (url === '/file') {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Use /file/<filename> to load a file');
+
+      return;
+    }
+
+    if (url === '/file/') {
       const indexFilePath = path.join(__dirname, '../public/index.html');
 
       fs.readFile(indexFilePath, (err, data) => {
@@ -21,7 +29,7 @@ function createServer() {
           return;
         }
         res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/plain');
+        res.setHeader('Content-Type', 'text/html');
         res.end(data);
       });
 
@@ -29,9 +37,9 @@ function createServer() {
     }
 
     if (!url.startsWith('/file/')) {
-      res.statusCode = 400;
+      res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain');
-      res.end('Bad Request');
+      res.end('Use /file/<filename> to load a file');
 
       return;
     }
@@ -55,6 +63,12 @@ function createServer() {
     }
 
     const filePath = path.join(__dirname, '../public', relativePath);
+    const ext = path.extname(filePath);
+    const contentTypes = {
+      '.html': 'text/html',
+      '.css': 'text/css',
+    };
+    const contentType = contentTypes[ext] || 'text/plain';
 
     fs.readFile(filePath, (err, data) => {
       if (err) {
@@ -66,7 +80,7 @@ function createServer() {
       }
 
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', contentType);
       res.end(data);
     });
   });
