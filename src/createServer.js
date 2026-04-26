@@ -1,91 +1,54 @@
 'use strict';
 
 const http = require('http');
-const fs = require('fs');
+const fs = require('fs/promises');
 const path = require('path');
 
 function createServer() {
-  const server = http.createServer((req, res) => {
-    const protectedUrl = new URL(req.url, `http://${req.headers.host}`);
-    const url = protectedUrl.pathname;
-
-    if (url === '/file') {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Use /file/<filename> to load a file');
+  return http.createServer(async (req, res) => {
+    if (req.url.includes('//')) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('File not found');
 
       return;
     }
 
-    if (url === '/file/') {
-      const indexFilePath = path.join(__dirname, '../public/index.html');
+    const parseUrl = new URL(req.url, 'http://localhost:5701');
+    const requestPath = parseUrl.pathname;
 
-      fs.readFile(indexFilePath, (err, data) => {
-        if (err) {
-          res.statusCode = 404;
-          res.setHeader('Content-Type', 'text/plain');
-          res.end('Not Found');
+    if (!requestPath.startsWith('/file/') && requestPath !== '/file') {
+      const isLikelyTraversal =
+        requestPath !== '/' && !requestPath.startsWith('/file');
 
-          return;
-        }
-        res.statusCode = 200;
-        res.setHeader('Content-Type', 'text/html');
-        res.end(data);
+      res.writeHead(isLikelyTraversal ? 400 : 200, {
+        'Content-Type': 'text/plain',
       });
+      res.end('Hint: you should use /file/ prefix');
 
       return;
     }
 
-    if (!url.startsWith('/file/')) {
-      res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Use /file/<filename> to load a file');
+    const pathToFile = requestPath.slice(6) || 'index.html';
+    const publicDir = path.join(__dirname, '..', 'public');
+    const filePath = path.join(publicDir, pathToFile);
+
+    if (!filePath.startsWith(publicDir)) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end('Directory traversal is not allowed');
 
       return;
     }
 
-    const relativePath = url.slice(6);
+    try {
+      const content = await fs.readFile(filePath);
 
-    if (relativePath.includes('..')) {
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Bad Request');
-
-      return;
+      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.end(content);
+    } catch (e) {
+      res.writeHead(404, { 'Content-Type': 'text/plain' });
+      res.end('File not found');
     }
-
-    if (relativePath.includes('//')) {
-      res.statusCode = 404;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Not Found');
-
-      return;
-    }
-
-    const filePath = path.join(__dirname, '../public', relativePath);
-    const ext = path.extname(filePath);
-    const contentTypes = {
-      '.html': 'text/html',
-      '.css': 'text/css',
-    };
-    const contentType = contentTypes[ext] || 'text/plain';
-
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
-        res.statusCode = 404;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Not Found');
-
-        return;
-      }
-
-      res.statusCode = 200;
-      res.setHeader('Content-Type', contentType);
-      res.end(data);
-    });
   });
-
-  return server;
 }
 
 module.exports = {
