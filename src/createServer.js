@@ -16,13 +16,20 @@ function createServer() {
     const parseUrl = new URL(req.url, 'http://localhost:5701');
     const requestPath = parseUrl.pathname;
 
-    if (!requestPath.startsWith('/file/') && requestPath !== '/file') {
-      const isLikelyTraversal =
-        requestPath !== '/' && !requestPath.startsWith('/file');
+    if (requestPath.includes('..')) {
+      res.writeHead(400, { 'Content-Type': 'text/plain' });
+      res.end('Directory traversal is not allowed');
 
-      res.writeHead(isLikelyTraversal ? 400 : 200, {
-        'Content-Type': 'text/plain',
-      });
+      return;
+    }
+
+    if (!requestPath.startsWith('/file/')) {
+      res.writeHead(
+        requestPath === '/' || requestPath === '/file' ? 200 : 400,
+        {
+          'Content-Type': 'text/plain',
+        },
+      );
       res.end('Hint: you should use /file/ prefix');
 
       return;
@@ -39,10 +46,16 @@ function createServer() {
       return;
     }
 
+    const mimeTypes = {
+      '.html': 'text/html',
+      '.css': 'text/css',
+    };
+    const contentType = mimeTypes[path.extname(filePath)] || 'text/plain';
+
     try {
       const content = await fs.readFile(filePath);
 
-      res.writeHead(200, { 'Content-Type': 'text/plain' });
+      res.writeHead(200, { 'Content-Type': contentType });
       res.end(content);
     } catch (e) {
       res.writeHead(404, { 'Content-Type': 'text/plain' });
