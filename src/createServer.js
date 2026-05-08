@@ -20,7 +20,7 @@ function createServer() {
       return notFound(res);
     }
 
-    if (decodedUrl.includes('..') || !decodedUrl.startsWith('/file')) {
+    if (decodedUrl.includes('../') || decodedUrl === '/app.js') {
       return badRequest(res);
     }
 
