@@ -1,8 +1,71 @@
+/* eslint-disable no-console */
 'use strict';
+
+const http = require('http');
+const url = require('url');
+const fs = require('fs');
+const path = require('path');
 
 function createServer() {
   /* Write your code here */
   // Return instance of http.Server class
+  const server = http.createServer((req, res) => {
+    const normalizedURL = new url.URL(req.url, `http://${req.headers.host}`);
+    const fileName = normalizedURL.pathname;
+
+    if (!fileName.startsWith('/file/')) {
+      if (fileName === '/file') {
+        res.statusCode = 200;
+      } else {
+        res.statusCode = 400;
+      }
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('You need to set path starting with "/file/"');
+
+      return;
+    }
+
+    if (fileName.includes('//')) {
+      res.statusCode = 404;
+      res.setHeader('Content-Type', 'text/plain');
+
+      res.end('You can`t type double slash(/)');
+
+      return;
+    }
+
+    const relativePath = fileName.replace('/file/', '');
+
+    const publicDir = path.resolve('./public');
+    const resolvedPath = path.resolve(`./public/${relativePath}`);
+
+    if (
+      !resolvedPath.startsWith(publicDir + path.sep) &&
+      resolvedPath !== publicDir
+    ) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end("You can't go outside /file folder");
+
+      return;
+    }
+
+    fs.readFile(`./public/${relativePath}`, (err, data) => {
+      if (err) {
+        res.statusCode = 404;
+        res.setHeader('Content-Type', 'text/plain');
+        res.end(`Not Found`);
+
+        return;
+      }
+
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end(data);
+    });
+  });
+
+  return server;
 }
 
 module.exports = {
