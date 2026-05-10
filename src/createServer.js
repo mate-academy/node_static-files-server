@@ -34,8 +34,15 @@ function createServer() {
       return;
     }
 
-    const relativePath = fileName.replace('/file/', '');
+    if (req.url.includes('../') || req.url.includes('..%2F')) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end("You can't go outside /file folder");
 
+      return;
+    }
+
+    const relativePath = fileName.replace('/file/', '');
     const publicDir = path.resolve('./public');
     const resolvedPath = path.resolve(`./public/${relativePath}`);
 
@@ -59,8 +66,15 @@ function createServer() {
         return;
       }
 
+      const ext = path.extname(relativePath);
+      const contentTypes = {
+        '.html': 'text/html',
+        '.css': 'text/css',
+      };
+      const contentType = contentTypes[ext] || 'text/plain';
+
       res.statusCode = 200;
-      res.setHeader('Content-Type', 'text/plain');
+      res.setHeader('Content-Type', contentType);
       res.end(data);
     });
   });
