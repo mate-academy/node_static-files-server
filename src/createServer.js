@@ -43,8 +43,9 @@ function createServer() {
     }
 
     const relativePath = fileName.replace('/file/', '');
+    const fileToRead = relativePath || 'index.html';
     const publicDir = path.resolve('./public');
-    const resolvedPath = path.resolve(`./public/${relativePath}`);
+    const resolvedPath = path.resolve(`./public/${fileToRead}`);
 
     if (
       !resolvedPath.startsWith(publicDir + path.sep) &&
@@ -57,7 +58,7 @@ function createServer() {
       return;
     }
 
-    fs.readFile(`./public/${relativePath}`, (err, data) => {
+    fs.readFile(`./public/${fileToRead}`, (err, data) => {
       if (err) {
         res.statusCode = 404;
         res.setHeader('Content-Type', 'text/plain');
