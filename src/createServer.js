@@ -27,12 +27,12 @@ function createServer() {
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     // duplicated slashes
-    /* if (pathName.includes('//')) {
+    if (url.pathname.includes('//')) {
       res.statusCode = 404;
       res.setHeader('Content-Type', 'text/plain');
 
       return res.end();
-    } */
+    }
 
     // exactly /file
     if (url.pathname === '/file') {
@@ -57,7 +57,7 @@ function createServer() {
 
     // защита от path traversal
     if (!fullPath.startsWith(publicDir + path.sep) && fullPath !== publicDir) {
-      res.statusCode = 404;
+      res.statusCode = 400;
       res.setHeader('Content-Type', 'text/plain');
 
       return res.end('Bad request');
