@@ -12,6 +12,13 @@ function createServer() {
 
     const pathname = parsedUrl.pathname;
 
+    if (pathname.includes('../')) {
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 400;
+      res.statusMessage = 'Bad Request';
+      res.end('Traversal paths are not allowed');
+    }
+
     if (pathname === '/file') {
       res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 200;
@@ -45,7 +52,20 @@ function createServer() {
       requestedFile = 'index.html';
     }
 
-    const filePath = path.join(__dirname, '../public', requestedFile);
+    const publicDir = path.resolve(__dirname, '../public');
+    const filePath = path.resolve(publicDir, requestedFile);
+
+    if (
+      !filePath.startsWith(`${publicDir}${path.sep}`) &&
+      filePath !== publicDir
+    ) {
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 400;
+      res.statusMessage = 'Bad Request';
+      res.end('Traversal paths are not allowed');
+
+      return;
+    }
 
     if (!fs.existsSync(filePath)) {
       res.setHeader('Content-Type', 'text/plain');
@@ -57,17 +77,14 @@ function createServer() {
     }
 
     const extension = path.extname(filePath);
+    const contentType = extension === '.css' ? 'text/css' : 'text/html';
 
-    res.setHeader(
-      'Content-Type',
-      extension === '.css' ? 'text/css' : 'text/html',
-    );
+    res.setHeader('Content-Type', contentType);
 
     const fileContent = fs.readFileSync(filePath);
 
     res.statusCode = 200;
     res.statusMessage = 'OK';
-
     res.end(fileContent);
   });
 }
