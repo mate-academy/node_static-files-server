@@ -24,17 +24,9 @@ function createServer() {
     const pathname = url.pathname;
 
     if (pathname === '/file/' || pathname === '/file') {
-      res.setHeader('Content-type', 'text/plain');
+      res.setHeader('Content-Type', 'text/plain');
       res.statusCode = 200;
       res.end('You write incorrect path, correct path: /file/fileName');
-
-      return;
-    }
-
-    if (!pathname.startsWith('/file/')) {
-      res.statusCode = 400;
-      res.setHeader('Content-type', 'text/plain');
-      res.end('Attempt to access files outside public folder');
 
       return;
     }
@@ -43,6 +35,21 @@ function createServer() {
 
     const filePath = pathname.replace('/file/', '');
     const realPath = path.resolve(publicPath, filePath);
+
+    if (!realPath.startsWith(publicPath)) {
+      res.statusCode = 400;
+      res.end('Attempt to access files outside public folder');
+
+      return;
+    }
+
+    if (!pathname.startsWith('/file/')) {
+      res.statusCode = 200;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Attempt to access files outside public folder');
+
+      return;
+    }
 
     try {
       const file = fs.readFileSync(realPath, 'utf-8');
@@ -55,7 +62,7 @@ function createServer() {
       res.end(file);
     } catch (e) {
       res.statusCode = 404;
-      res.setHeader('Content-type', 'text/plain');
+      res.setHeader('Content-Type', 'text/plain');
       res.end('Not Found');
     }
   });
