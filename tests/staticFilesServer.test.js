@@ -120,7 +120,15 @@ describe('Static files server', () => {
           expect.assertions(1);
 
           try {
-            await axios.get(`${HOST}/file/../app.js`);
+            await axios.get(`${HOST}/file/../app.js`, {
+              transport: {
+                request: function (options, callback) {
+                  options.path = '/file/../app.js';
+
+                  return require('http').request(options, callback);
+                },
+              },
+            });
           } catch (error) {
             expect(error.response.status).toBe(400);
           }
