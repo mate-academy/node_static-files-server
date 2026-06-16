@@ -4,21 +4,24 @@
 const http = require('http');
 const fsp = require('fs/promises');
 const path = require('path');
+const fs = require('fs');
 
 function createServer() {
   const server = http.createServer(async (req, res) => {
+    fs.appendFileSync(path.join(__dirname, '..', 'log.txt'), `${req.url}\n`);
+
+    if (req.url.includes('..')) {
+      res.statusCode = 400;
+      res.setHeader('Content-Type', 'text/plain');
+      res.end('Bad Request');
+
+      return;
+    }
+
     const url = new URL(req.url, `http://${req.headers.host}`);
 
     if (url.pathname.startsWith('/file/')) {
       const requestedPath = url.pathname.slice('/file/'.length) || 'index.html';
-
-      if (url.pathname.includes('..')) {
-        res.statusCode = 400;
-        res.setHeader('Content-Type', 'text/plain');
-        res.end('Bad Request');
-
-        return;
-      }
 
       if (url.pathname.includes('//')) {
         res.statusCode = 404;
@@ -58,12 +61,6 @@ function createServer() {
         res.setHeader('Content-Type', 'text/plain');
         res.end('Not Found');
       }
-    } else if (url.pathname === '/app.js') {
-      // especialy for testcases because req.url already normalized
-      // incoming req.url === "app.js" but must be "/file/../app.js"
-      res.statusCode = 400;
-      res.setHeader('Content-Type', 'text/plain');
-      res.end('Bad Request');
     } else {
       res.statusCode = 200;
       res.setHeader('Content-Type', 'text/plain');
