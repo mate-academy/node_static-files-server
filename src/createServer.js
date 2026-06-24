@@ -40,10 +40,10 @@ function createServer() {
     }
 
     if (!filePath.startsWith('/file')) {
-      res.writeHead(400, {
+      res.writeHead(200, {
         'Content-type': 'text/plain',
       });
-      res.end('Bad request');
+      res.end('Try to request with /file/');
 
       return;
     }
@@ -54,7 +54,7 @@ function createServer() {
       fileName = 'index.html';
     } else if (filePath === '/file') {
       res.writeHead(200, { 'Content-Type': 'text/plain' });
-      res.end('You should request with /file/');
+      res.end('Try to request with /file/');
 
       return;
     }
