@@ -40,7 +40,7 @@ function createServer() {
     }
 
     if (!filePath.startsWith('/file')) {
-      res.writeHead(200, {
+      res.writeHead(400, {
         'Content-type': 'text/plain',
       });
       res.end('Try to request with /file/');
