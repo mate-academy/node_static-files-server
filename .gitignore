@@ -7,3 +7,6 @@ node_modules
 
 # MacOS
 .DS_Store
+
+src/request.js
+public_test/
