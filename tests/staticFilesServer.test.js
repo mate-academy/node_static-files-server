@@ -6,7 +6,7 @@ const axios = require('axios');
 const path = require('path');
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-const { Server, Agent } = require('http');
+const { Server, Agent, request } = require('http');
 const { createServer } = require('../src/createServer.js');
 
 // this prevents `socket hang up` for Node.js 20.10+
@@ -76,13 +76,14 @@ describe('Static files server', () => {
       });
 
       afterAll(() => {
-        if (fs.existsSync(indexFilePath)) {
-          fs.rmdirSync(publicFolderPath, { recursive: true });
-        }
+        // if (fs.existsSync(indexFilePath)) {
+        //   fs.rmdirSync(publicFolderPath, { recursive: true });
+        // }
 
-        if (fs.existsSync(mainCSSFilePath)) {
-          fs.rmdirSync(stylesFolderPath, { recursive: true });
-        }
+        // if (fs.existsSync(mainCSSFilePath)) {
+        //   fs.rmdirSync(stylesFolderPath, { recursive: true });
+        // }
+        fs.rmSync(publicFolderPath, { recursive: true, force: true });
       });
 
       describe('Valid file requests', () => {
@@ -119,11 +120,30 @@ describe('Static files server', () => {
         it('should return 400 for traversal paths', async() => {
           expect.assertions(1);
 
-          try {
-            await axios.get(`${HOST}/file/../app.js`);
-          } catch (error) {
-            expect(error.response.status).toBe(400);
-          }
+          const options = {
+            host: 'localhost',
+            port: 5701,
+            method: 'GET',
+            path: '/file/../app.js', // сырой путь
+            headers: {
+              Host: 'localhost:5701',
+            },
+          };
+
+          await new Promise((resolve, reject) => {
+            const req = request(options, (res) => {
+              try {
+                expect(res.statusCode).toBe(400);
+                resolve();
+              } catch (err) {
+                reject(err);
+              }
+            });
+
+            req.on('error', reject);
+            req.end();
+          });
+
         });
 
         it('should return 404 for paths having duplicated slashes', async() => {
