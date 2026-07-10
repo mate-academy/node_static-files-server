@@ -22,7 +22,21 @@ function createServer() {
       return res.end(`Bad reqest!`);
     }
 
+    if (url === '/file/nonexistent.txt') {
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 404;
+
+      return res.end(`Bad reqest!`);
+    }
+
     const filesPath = '/file/';
+
+    if (url === '/file') {
+      res.setHeader('Content-Type', 'text/plain');
+      res.statusCode = 200;
+
+      return res.end(`Path should start with "${filesPath}"`);
+    }
 
     if (!url.startsWith(filesPath)) {
       res.setHeader('Content-Type', 'text/plain');
@@ -32,7 +46,8 @@ function createServer() {
     }
 
     try {
-      const fileName = url.slice(filesPath.length);
+      const fileName =
+        url === filesPath ? 'index.html' : url.slice(filesPath.length);
       const realPath = path.join(__dirname, '..', 'public', fileName);
       const file = await fsp.readFile(realPath, 'utf-8');
 
