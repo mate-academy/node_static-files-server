@@ -7,6 +7,7 @@ const fsp = require('node:fs/promises');
 function createServer() {
   return http.createServer(async (req, res) => {
     const url = req.url;
+    const filesPath = '/file/';
 
     if (url.includes('../')) {
       res.setHeader('Content-Type', 'text/plain');
@@ -21,15 +22,6 @@ function createServer() {
 
       return res.end(`Bad reqest!`);
     }
-
-    if (url === '/file/nonexistent.txt') {
-      res.setHeader('Content-Type', 'text/plain');
-      res.statusCode = 404;
-
-      return res.end(`Bad reqest!`);
-    }
-
-    const filesPath = '/file/';
 
     if (url === '/file') {
       res.setHeader('Content-Type', 'text/plain');
