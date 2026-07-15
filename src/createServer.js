@@ -47,11 +47,11 @@ function createServer() {
 
     // hint для /file (робимо по pathname)
 
-    if (pathname === '/file' || pathname.endsWith('/file/')) {
+    if (pathname === '/file') {
       return sendMessage(res, 200, 'Incorrect path, use /file/<fileName>');
     }
 
-    if (!pathname.startsWith('/file/')) {
+    if (!pathname.startsWith('/file')) {
       return sendMessage(res, 400, 'Bad request');
     }
 
