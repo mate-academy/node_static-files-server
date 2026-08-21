@@ -38,13 +38,11 @@ describe('Static files server', () => {
   describe('createServer', () => {
     describe('basic scenarios', () => {
       it('should create a server', () => {
-        expect(createServer)
-          .toBeInstanceOf(Function);
+        expect(createServer).toBeInstanceOf(Function);
       });
 
       it('should create an instance of Server', async() => {
-        expect(createServer())
-          .toBeInstanceOf(Server);
+        expect(createServer()).toBeInstanceOf(Server);
       });
     });
 
