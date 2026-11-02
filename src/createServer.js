@@ -41,7 +41,8 @@ function createServer() {
       return;
     }
 
-    const neededPath = url.pathname.slice(6) || 'index.html';
+    const rest = url.pathname.slice(6);
+    const neededPath = rest === '/' || rest === '' ? 'index.html' : rest;
     const filePath = path.join(__dirname, `../public/${neededPath}`);
     const ext = path.extname(neededPath);
 
