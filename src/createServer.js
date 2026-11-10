@@ -31,7 +31,8 @@ function createServer() {
       return;
     }
 
-    const filePath = `./public/${reqPart.replace('/file/', '').length ? reqPart.replace('/file/', '').length : 'index.html'}`;
+    const normalizedURLPart = reqPart.replace('/file/', '');
+    const filePath = `./public/${normalizedURLPart ? reqPart.replace('/file/', '').length : 'index.html'}`;
 
     try {
       const data = fs.readFileSync(filePath, 'utf-8');
