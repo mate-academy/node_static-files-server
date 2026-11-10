@@ -31,11 +31,14 @@ function createServer() {
       return;
     }
 
-    const filePath = `./public/${reqPart.replace('/file/', '')}`;
+    const filePath = `./public/${reqPart.replace('/file/', '').length ? reqPart.replace('/file/', '').length : 'index.html'}`;
 
     try {
       const data = fs.readFileSync(filePath, 'utf-8');
+      const fileSplit = filePath.slice('.');
+      const fileType = fileSplit[fileSplit.length - 1];
 
+      res.setHeader('Content-type', `text/${fileType}`);
       res.end(data);
     } catch {
       res.setHeader('Content-type', 'text/plain');
