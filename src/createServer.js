@@ -32,7 +32,7 @@ function createServer() {
     }
 
     const normalizedURLPart = reqPart.replace('/file/', '');
-    const filePath = `./public/${normalizedURLPart ? reqPart.replace('/file/', '').length : 'index.html'}`;
+    const filePath = `./public/${normalizedURLPart || 'index.html'}`;
 
     try {
       const data = fs.readFileSync(filePath, 'utf-8');
