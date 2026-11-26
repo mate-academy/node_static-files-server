@@ -115,25 +115,30 @@ describe('Static files server', () => {
         });
       });
 
-      describe('Attempt to access files outside public folder', () => {
-        it('should return 400 for traversal paths', async() => {
-          const statusCode = await new Promise((resolve, reject) => {
+      describe('Invalid file paths', () => {
+        it.each([
+          ['/file/../app.js', 400],
+          ['/file/.', 404],
+        ])('should handle %s with status %i', async(requestPath, expectedStatus) => {
+          const { statusCode, headers } = await new Promise((resolve, reject) => {
             const request = get(
               {
                 hostname: 'localhost',
                 port: PORT,
-                path: '/file/../app.js',
+                path: requestPath,
+                agent: false,
               },
               (response) => {
                 response.resume();
-                resolve(response.statusCode);
+                resolve(response);
               },
             );
 
             request.on('error', reject);
           });
 
-          expect(statusCode).toBe(400);
+          expect(statusCode).toBe(expectedStatus);
+          expect(headers['content-type']).toBe('text/plain');
         });
 
         it('should return 404 for paths having duplicated slashes', async() => {

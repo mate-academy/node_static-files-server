@@ -12,7 +12,7 @@ const contentTypes = {
 };
 
 const createServer = () => {
-  const server = http.createServer((req, res) => {
+  const server = http.createServer(async (req, res) => {
     const [pathname] = req.url.split('?');
 
     res.setHeader('Content-Type', 'text/plain');
@@ -41,27 +41,49 @@ const createServer = () => {
     const relativePath = pathname.slice('/file/'.length) || 'index.html';
     const filePath = path.resolve(publicPath, relativePath);
 
-    if (!filePath.startsWith(publicPath + path.sep)) {
+    if (
+      !filePath.startsWith(publicPath + path.sep) &&
+      (filePath !== publicPath || relativePath.endsWith('/..'))
+    ) {
       res.statusCode = 400;
       res.end('Bad request');
 
       return;
     }
 
-    fs.readFile(filePath, (err, data) => {
-      if (err) {
+    try {
+      const realPublicPath = await fs.promises.realpath(publicPath);
+      const realFilePath = await fs.promises.realpath(filePath);
+
+      if (
+        realFilePath !== realPublicPath &&
+        !realFilePath.startsWith(realPublicPath + path.sep)
+      ) {
+        res.statusCode = 400;
+        res.end('Bad request');
+
+        return;
+      }
+
+      const stats = await fs.promises.stat(realFilePath);
+
+      if (!stats.isFile()) {
         res.statusCode = 404;
         res.end('File not found');
 
         return;
       }
 
+      const data = await fs.promises.readFile(realFilePath);
       const extension = path.extname(filePath);
 
       res.statusCode = 200;
       res.setHeader('Content-Type', contentTypes[extension] || 'text/plain');
       res.end(data);
-    });
+    } catch {
+      res.statusCode = 404;
+      res.end('File not found');
+    }
   });
 
   return server;
