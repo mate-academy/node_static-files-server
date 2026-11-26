@@ -42,8 +42,8 @@ const createServer = () => {
     const filePath = path.resolve(publicPath, relativePath);
 
     if (
-      !filePath.startsWith(publicPath + path.sep) &&
-      (filePath !== publicPath || relativePath.endsWith('/..'))
+      filePath !== publicPath &&
+      !filePath.startsWith(publicPath + path.sep)
     ) {
       res.statusCode = 400;
       res.end('Bad request');

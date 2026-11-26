@@ -119,6 +119,7 @@ describe('Static files server', () => {
         it.each([
           ['/file/../app.js', 400],
           ['/file/.', 404],
+          ['/file/styles/..', 404],
         ])('should handle %s with status %i', async(requestPath, expectedStatus) => {
           const { statusCode, headers } = await new Promise((resolve, reject) => {
             const request = get(
