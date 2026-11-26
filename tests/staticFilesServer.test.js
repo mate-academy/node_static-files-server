@@ -6,7 +6,7 @@ const axios = require('axios');
 const path = require('path');
 const { faker } = require('@faker-js/faker');
 const fs = require('fs');
-const { Server, Agent } = require('http');
+const { Server, Agent, get } = require('http');
 const { createServer } = require('../src/createServer.js');
 
 // this prevents `socket hang up` for Node.js 20.10+
@@ -115,15 +115,31 @@ describe('Static files server', () => {
         });
       });
 
-      describe('Attempt to access files outside public folder', () => {
-        it('should return 400 for traversal paths', async() => {
-          expect.assertions(1);
+      describe('Invalid file paths', () => {
+        it.each([
+          ['/file/../app.js', 400],
+          ['/file/.', 404],
+          ['/file/styles/..', 404],
+        ])('should handle %s with status %i', async(requestPath, expectedStatus) => {
+          const { statusCode, headers } = await new Promise((resolve, reject) => {
+            const request = get(
+              {
+                hostname: 'localhost',
+                port: PORT,
+                path: requestPath,
+                agent: false,
+              },
+              (response) => {
+                response.resume();
+                resolve(response);
+              },
+            );
 
-          try {
-            await axios.get(`${HOST}/file/../app.js`);
-          } catch (error) {
-            expect(error.response.status).toBe(400);
-          }
+            request.on('error', reject);
+          });
+
+          expect(statusCode).toBe(expectedStatus);
+          expect(headers['content-type']).toBe('text/plain');
         });
 
         it('should return 404 for paths having duplicated slashes', async() => {
